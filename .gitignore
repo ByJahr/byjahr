@@ -5,3 +5,11 @@ outputs/
 .DS_Store
 __pycache__/
 .env*
+
+artwork-inbox/
+.cms-tools/
+.venv/
+node_modules/
+.dev.vars*
+!.dev.vars.example
+.wrangler/

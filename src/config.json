@@ -30,5 +30,14 @@
       "usuario": "@byjahr",
       "url": "https://www.instagram.com/byjahr/"
     }
-  ]
+  ],
+  "categorias_cms": {
+    "criatura": "Criatura",
+    "retrato": "Retrato",
+    "personaje": "Personaje",
+    "escena-narrativa": "Escena narrativa",
+    "inktober": "Inktober",
+    "fanart": "Fanart",
+    "ilustracion-original": "Ilustración original"
+  }
 }

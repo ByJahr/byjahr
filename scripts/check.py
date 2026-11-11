@@ -1,6 +1,6 @@
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 from build_site import BASE, OUT
 
 class Links(HTMLParser):
@@ -30,6 +30,9 @@ for source, parser in pages.items():
     for value in parser.urls:
         parts = urlsplit(value)
         if parts.scheme or parts.netloc: continue
+        if parts.path and not parts.path.startswith('/'):
+            route = source.relative_to(OUT).as_posix()
+            parts = urlsplit(urljoin(BASE + route, value))
         if not parts.path:
             target = source
         elif not parts.path.startswith(BASE):

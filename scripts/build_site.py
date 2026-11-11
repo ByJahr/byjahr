@@ -1,3 +1,5 @@
+from cms import generate_admin
+from artwork import read_art, export_art
 import argparse
 import html
 import json
@@ -32,6 +34,35 @@ def asset(path):
 def external(value):
     return isinstance(value, str) and urlsplit(value).scheme == 'https' and bool(urlsplit(value).netloc)
 
+def normalize_entry(group, path, data):
+    if group in ('obras', 'criaturas'):
+        data.setdefault('slug', path.stem)
+        if not data['slug']:
+            data['slug'] = path.stem
+        if data.get('draft') or data.get('published') is False:
+            data['estado_publicacion'] = 'borrador'
+    if group == 'obras' and 'title' in data:
+        aliases = {'title':'titulo','image':'imagen','collection':'coleccion','category':'categoria',
+                   'year':'ano','description':'descripcion','date':'fecha','featured':'destacada',
+                   'order':'orden','character':'personaje','campaign':'campana','technique':'tecnica',
+                   'format':'formato','tags':'etiquetas','caption':'descripcion_ampliada',
+                   'credits':'creditos','inktoberPrompt':'prompt','contentWarning':'aviso'}
+        for source, target in aliases.items():
+            if source in data:
+                data[target] = data.pop(source)
+        if 'ano' in data:
+            data['ano'] = str(data['ano'])
+        if 'categoria' in data:
+            data['categoria'] = cfg['categorias_cms'].get(data['categoria'],data['categoria'])
+        if not data.get('descripcion'):
+            raise ValueError('falta la descripción breve')
+        related = data.pop('externalLink','')
+        if related:
+            data['enlaces'] = [{'titulo':'Enlace relacionado','url':related}]
+    if isinstance(data.get('imagen'),str):
+        data['imagen'] = data['imagen'].removeprefix('/byjahr/').removeprefix('/')
+    return data
+
 def validate():
     for network in cfg.get('redes_sociales', []):
         if not network.get('nombre') or not external(network.get('url')):
@@ -55,6 +86,7 @@ def validate():
                 d = json.loads(path.read_text())
                 if not isinstance(d, dict):
                     raise ValueError('se esperaba un objeto JSON')
+                d = normalize_entry(group,path,d)
                 for field in fields:
                     if not isinstance(d.get(field), str) or not d[field].strip():
                         fail(f'falta {field} o está vacío')
@@ -64,9 +96,12 @@ def validate():
                 elif slug in found:
                     fail(f'slug duplicado: {slug}')
                 else:
+                    if group == 'colecciones':
+                        if slug != path.stem: fail('el identificador fijo debe coincidir con el archivo de colección')
+                        d['_cms_file'] = path.as_posix()
                     found[slug] = d
                 for key, value in d.items():
-                    if key in ('oculta', 'destacada'):
+                    if key in ('oculta', 'destacada', 'draft', 'published'):
                         if not isinstance(value, bool): fail(f'{key} debe ser booleano')
                     elif key in ('orden','ancho','alto'):
                         if type(value) is not int or value < 0: fail(f'{key} debe ser un entero no negativo')
@@ -91,7 +126,16 @@ def validate():
                                         widths.add(width)
                     elif not isinstance(value,str):
                         fail(f'{key} debe ser texto')
-                if d.get('imagen') and not asset(d['imagen']): fail('imagen inexistente o fuera de public/')
+                if d.get('imagen'):
+                    if not asset(d['imagen']):
+                        fail('imagen inexistente o fuera de public/')
+                    elif not d.get('alt','').strip():
+                        fail('falta texto alternativo')
+                    else:
+                        read_art(PUBLIC / d['imagen'])
+                for variant in d.get('variantes',[]):
+                    if isinstance(variant,dict) and asset(variant.get('imagen')):
+                        read_art(PUBLIC / variant['imagen'])
                 if group == 'colecciones' and d.get('imagen') and not d.get('alt','').strip():
                     fail('falta alt de la portada')
                 if d.get('fecha'):
@@ -103,10 +147,10 @@ def validate():
                     if not d.get('fecha') and not re.fullmatch(r'[1-9][0-9]{3}',d.get('ano','')): fail('indica fecha o año de cuatro dígitos')
                     if d.get('ano') and (not re.fullmatch(r'[1-9][0-9]{3}',d['ano']) or (d.get('fecha') and d['fecha'][:4] != d['ano'])): fail('año inválido o distinto de la fecha')
                     if d.get('coleccion') not in groups['colecciones']: fail('colección inexistente')
-                    if d.get('categoria') not in cfg['categorias'] + ['Ilustración','Escena','Estudio']: fail('categoría inválida')
+                    if d.get('categoria') not in cfg['categorias'] + list(cfg['categorias_cms'].values()) + ['Ilustración','Escena','Estudio']: fail('categoría inválida')
                 if group == 'criaturas' and d.get('estado') and d['estado'] not in statuses:
                     fail('estado inválido: ' + ', '.join(statuses))
-            except (ValueError, TypeError, AttributeError, UnicodeError) as exc:
+            except (ValueError, TypeError, AttributeError, UnicodeError, OSError) as exc:
                 fail(str(exc))
         groups[group] = found
     if errors: raise SystemExit('\n'.join(errors))
@@ -188,7 +232,7 @@ def card(d, fields=(), beast=False):
     attrs = ' '.join(f'data-{k}="{e(attr(d,k))}"' for k,_ in fields)
     metadata = [COLS.get(d.get('coleccion'),{}).get('titulo',''),attr(d,'ano'),d.get('categoria','')]
     if beast: metadata = [attr(d,k) for k in ('tipo','tamano','entorno','amenaza','estado')]
-    search = ' '.join(str(d.get(k,'')) for k in ('descripcion','descripcion_ampliada','tecnica','personaje','campana','intro'))
+    search = ' '.join(str(d.get(k,'')) for k in ('descripcion','descripcion_ampliada','tecnica','personaje','campana','intro','prompt'))
     search += ' ' + ' '.join(d.get('etiquetas', []))
     return f'<article class="card" data-entry {attrs} data-search="{e(search)}">{img(d)}<p class="eyebrow">{e(" · ".join(filter(None,metadata)))}</p><h3>{link(entrypath(d,beast),label(d))}</h3><p>{e(d.get("descripcion",""))}</p></article>'
 
@@ -220,20 +264,29 @@ def detail(items, beast=False):
         section_name, section_path = ('Bestiario','bestiario/') if beast else ('Portafolio','portafolio/')
         if beast:
             intro = d.get('intro') or d['descripcion']
-            fields = [('fisico','Descripción física'),('comportamiento','Comportamiento'),('habitat','Hábitat'),('leyenda','Historia o leyenda'),('habilidades','Habilidades'),('debilidades','Debilidades'),('senales','Señales de su presencia'),('uso','Uso en una historia o campaña'),('estadisticas','Homebrew original · compatible con 5e')]
+            fields = [('fisico','Descripción física'),('comportamiento','Comportamiento'),('habitat','Hábitat'),('leyenda','Historia o leyenda'),('habilidades','Habilidades'),('debilidades','Debilidades'),('senales','Señales de su presencia'),('uso','Uso en una historia o campaña'),('rasgos','Rasgos'),('acciones','Acciones'),('estadisticas','Homebrew original · compatible con 5e')]
             facts = [('tipo','Tipo'),('tamano','Tamaño'),('entorno','Entorno'),('amenaza','Amenaza o desafío'),('estado','Estado'),('creditos','Créditos'),('fecha','Fecha')]
         else:
             intro = d.get('descripcion','')
             fields = [('descripcion_ampliada','Sobre la obra')]
-            facts = [('formato','Formato'),('creditos','Créditos'),('ano','Año'),('tecnica','Técnica'),('categoria','Categoría'),('personaje','Personaje'),('campana','Temporada o campaña'),('fecha','Fecha')]
+            facts = [('formato','Formato'),('creditos','Créditos'),('ano','Año'),('tecnica','Técnica'),('categoria','Categoría'),('personaje','Personaje'),('campana','Temporada o campaña'),('fecha','Fecha'),('prompt','Prompt de Inktober')]
         defs = ''.join(f'<dt>{title}</dt><dd>{e(attr(d,k))}</dd>' for k,title in facts if attr(d,k))
         if not beast:
             col = COLS[d['coleccion']]
             defs += f'<dt>Colección</dt><dd>{link(collection_path(col),label(col))}</dd>'
         related = ''.join(f'<li><a href="{e(x["url"])}">{e(x["titulo"])}</a></li>' for x in d.get('enlaces',[]))
+        if not beast:
+            others = [candidate for candidate in items if candidate is not d and
+                      (candidate['coleccion'] == d['coleccion'] or
+                       set(candidate.get('etiquetas', [])) & set(d.get('etiquetas', [])) or
+                       (d.get('personaje') and candidate.get('personaje') == d['personaje']))][:3]
+            if others:
+                related += ''.join(f'<li>{link(entrypath(candidate),label(candidate))}</li>' for candidate in others)
         share = '<button data-share hidden type="button">Copiar enlace</button><input data-share-url hidden readonly aria-label="Enlace de la ficha"><p data-share-status role="status"></p>'
         pager = ''.join(link(entrypath(items[j],beast), prefix + label(items[j]), direction=direction) for j,prefix,direction in [(i-1,'Anterior: ','left'),(i+1,'Siguiente: ','right')] if 0 <= j < len(items))
         desc = f'<p>{e(d["descripcion"])}</p>' if beast and d.get('intro') and d['intro'] != d['descripcion'] else ''
+        if d.get('aviso'):
+            desc += f'<p class="empty"><strong>Aviso de contenido:</strong> {e(d["aviso"])}</p>'
         enlarged = f'<a class="art-link" href="{url(d["imagen"])}" target="_blank" rel="noopener noreferrer">{img(d,True)}<span>Ver imagen a tamaño completo {arrow()}</span></a>'
         page(p,label(d),d.get('descripcion') or label(d),
              head(section_name,label(d),intro) + f'<div class="detail">{enlarged}<div class="prose">{desc}<dl>{defs}</dl>{textblocks(d,fields)}{f"<ul>{related}</ul>" if related else ""}{share}</div></div><nav class="pager" aria-label="Entre fichas">{link(section_path,"Volver a " + section_name)}{pager}</nav>',
@@ -243,20 +296,27 @@ def build():
     global COLS
     if OUT.is_symlink(): raise SystemExit('dist no puede ser un enlace simbólico')
     if OUT.exists(): shutil.rmtree(OUT)
-    shutil.copytree(PUBLIC,OUT,ignore=shutil.ignore_patterns('.gitkeep','.DS_Store','images'))
+    shutil.copytree(PUBLIC,OUT,ignore=shutil.ignore_patterns('.gitkeep','.DS_Store','images','uploads'))
     cols = [x for x in groups['colecciones'].values() if not x.get('oculta')]
     order = ['bestiario','caoz-con-todo','inktober-2026','fanart','originales']
-    cols.sort(key=lambda x: (order.index(x['slug']) if x['slug'] in order else len(order),label(x)))
+    cols.sort(key=lambda x: (x.get('orden', order.index(x['slug']) if x['slug'] in order else len(order)),label(x)))
     COLS = {x['slug']:x for x in cols}
     works = sorted([d for d in groups['obras'].values() if d['coleccion'] in COLS and d.get('estado_publicacion','publicada') == 'publicada'], key=lambda d: (-d.get('orden',0), d.get('fecha') or attr(d,'ano')), reverse=True)
-    beasts = sorted(groups['criaturas'].values(),key=label) if 'bestiario' in COLS else []
-    for item in cols + works + beasts + [{'imagen':cfg['favicon']}]:
-        for source in [item.get('imagen')] + [v['imagen'] for v in item.get('variantes',[])]:
-            if source:
-                target = OUT / source
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(PUBLIC / source, target)
-    featured = next((d for d in works if d.get('destacada')), works[0] if works else None)
+    beasts = sorted([d for d in groups['criaturas'].values()
+                     if d.get('estado_publicacion','publicada') == 'publicada'], key=label) if 'bestiario' in COLS else []
+    generate_admin(OUT, cfg, groups['colecciones'])
+    for item in cols + works + beasts:
+        if not item.get('imagen'):
+            continue
+        collection = item.get('coleccion') or ('bestiario' if item in beasts else item['slug'])
+        folder = Path('images/artworks') / collection
+        prefix = 'portada-' if item in cols else 'criatura-' if item in beasts else ''
+        stem = f"{collection}-{prefix}{item['slug']}"
+        variants = export_art(read_art(PUBLIC / item['imagen']), OUT / folder, stem)
+        filename, item['ancho'], item['alto'] = variants[-1]
+        item['imagen'] = (folder / filename).as_posix()
+        item['variantes'] = [dict(imagen=(folder / name).as_posix(),ancho=w) for name,w,_ in variants]
+    featured = next((d for d in works if d.get('destacada')), None)
     plate = f'<figure>{link(entrypath(featured),label(featured))}{img(featured,True)}</figure>' if featured else ''
     hero_class = "hero" if featured else "hero hero-text"
     home = f'<section class="{hero_class}"><div><p class="eyebrow">Archivo visual · Fantasía oscura</p><h1>@byjahr</h1><p class="lede">{TITLE}</p>{link("portafolio/","Explorar portafolio","cta","diagonal")}</div>{plate}</section>'
@@ -290,7 +350,7 @@ def build():
     page('contacto/','Contacto',cfg['contacto'],head('Correspondencia','Contacto',cfg['contacto']) + contact)
     page('404.html','Página no encontrada','No encontramos esta página.',head('Error 404','Lámina extraviada','Esta página no está en el archivo.') + link('portafolio/','Regresar al portafolio','cta'))
     (OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + ''.join(f'<url><loc>{xml(SITE+url(p))}</loc></url>' for p in routes if SITE) + '</urlset>\n')
-    (OUT/'robots.txt').write_text('User-agent: *\nAllow: /\n' + (f'Sitemap: {SITE}{url("sitemap.xml")}\n' if SITE else ''))
+    (OUT/'robots.txt').write_text(f'User-agent: *\nAllow: /\nDisallow: {url("admin/")}\n' + (f'Sitemap: {SITE}{url("sitemap.xml")}\n' if SITE else ''))
     (OUT/'.nojekyll').touch()
     print(f'{len(routes)} rutas y 404 generadas en {OUT}/ (base {BASE})')
 

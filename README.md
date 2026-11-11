@@ -1,10 +1,10 @@
 # @byjahr
 
-Portafolio de fantasía oscura, archivo de colecciones y Bestiario. Python genera HTML estático; CSS y JavaScript nativos se encargan del diseño y los filtros. Las fichas son JSON. No hay instalación de dependencias.
+Portafolio de fantasía oscura, archivo de colecciones y Bestiario. Python genera HTML estático; CSS y JavaScript nativos se encargan del diseño y los filtros. Las fichas son JSON. La compilación usa Pillow para procesar imágenes.
 
 ## En VS Code
 
-Abre esta carpeta y usa la terminal integrada. Necesitas Python 3.9 o superior.
+Abre esta carpeta y usa la terminal integrada. Necesitas Python 3.9 o superior e instalar las dependencias indicadas en «Editor visual y archivo de imágenes».
 
 ```sh
 python3 --version
@@ -71,3 +71,20 @@ Cada push a `main` ejecuta el flujo de publicación. Si el flujo falla, abre su 
 SITE_URL=https://ejemplo.github.io SITE_BASE=/byjahr-web python3 scripts/build_site.py build
 SITE_BASE=/byjahr-web python3 scripts/check.py
 ```
+
+## Editor visual y archivo de imágenes
+
+Consulta [ADMIN_GUIDE.md](ADMIN_GUIDE.md) para publicar y configurar el acceso con GitHub. El generador sigue siendo Python. Para compilar, instala primero sus dependencias:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+SITE_BASE=/byjahr/ python scripts/build_site.py build
+SITE_BASE=/byjahr/ python scripts/check.py
+python scripts/preview.py
+```
+
+En otra terminal, ejecuta `npx decap-server@3.11.6` desde la raíz. Abre http://127.0.0.1:8021/byjahr/admin/ para guardar fichas localmente. Mantén el proxy en loopback y ciérralo al terminar. Vuelve a compilar para ver cambios en la galería.
+
+Los originales aprobados se reciben en `artwork-inbox/` y se conservan fuera de Git. Sube solo copias web con nombres descriptivos, sin metadatos privados. Decap guarda la copia en `public/uploads/` y la ficha JSON en `src/content/`. La compilación genera las versiones públicas en `dist/images/artworks/<colección>/`, sin duplicar la imagen entre galerías. Los borradores quedan fuera de la compilación pública.

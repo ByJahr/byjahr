@@ -1,0 +1,9 @@
+name = "byjahr-cms-oauth"
+main = "worker.mjs"
+compatibility_date = "2026-01-01"
+workers_dev = true
+preview_urls = false
+
+[vars]
+SITE_ORIGIN = "https://byjahr.github.io"
+ALLOWED_LOGINS = "ByJahr"
