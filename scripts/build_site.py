@@ -33,9 +33,9 @@ def external(value):
     return isinstance(value, str) and urlsplit(value).scheme == 'https' and bool(urlsplit(value).netloc)
 
 def validate():
-    for field in ('instagram', 'tiktok'):
-        if cfg.get(field) and not external(cfg[field]):
-            errors.append(f'config.json: {field} debe ser una URL HTTPS')
+    for network in cfg.get('redes_sociales', []):
+        if not network.get('nombre') or not external(network.get('url')):
+            errors.append('config.json: cada red necesita nombre y URL HTTPS')
     if cfg.get('email') and not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', cfg['email']):
         errors.append('config.json: correo inválido')
     for field in ('favicon', 'retrato'):
@@ -120,12 +120,17 @@ def arrow(direction='diagonal'):
     paths = {'diagonal': 'M3 9l6-6M4 3h5v5', 'left': 'M10 6H2m4-4L2 6l4 4', 'right': 'M2 6h8M6 2l4 4-4 4'}
     return f'<svg class="link-arrow" aria-hidden="true" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3"><path d="{paths[direction]}"/></svg>'
 
-def social(primary=False):
+def social(primary=False, show_handle=True):
     parts = []
-    for key, name in [('instagram', 'Instagram'), ('tiktok', 'TikTok')]:
-        if cfg.get(key):
-            cls = 'cta' if primary and key == 'instagram' else ''
-            parts.append(f'<a class="{cls}" href="{e(cfg[key])}" target="_blank" rel="noopener noreferrer">{name} {e(cfg.get(key + "_usuario", ""))} {arrow()}</a>')
+    for index, network in enumerate(cfg.get('redes_sociales', [])):
+        cls = 'cta' if primary and index == 0 else ''
+        name = network['nombre']
+        if show_handle and network.get('usuario'):
+            name += ' · ' + network['usuario']
+        parts.append(
+            f'<a class="{cls}" href="{e(network["url"])}" target="_blank" '
+            f'rel="noopener noreferrer">{e(name)}{arrow()}</a>'
+        )
     return '<div class="social-links">' + ''.join(parts) + '</div>' if parts else ''
 
 def link(path, label, cls='', direction=None):
@@ -151,7 +156,7 @@ def page(path, title, description, body, image='', current=None):
 {link('', '@byjahr','wordmark')}<nav class="desktop nav" aria-label="Principal">{nav}</nav>
 <details class="mobile"><summary>Menú</summary><nav class="nav" aria-label="Principal móvil">{nav}</nav></details></div></header>
 <main id="contenido" tabindex="-1" class="wrap">{body}</main>
-<footer class="footer"><div class="wrap">{link('', '@byjahr','wordmark')}<span>Archivo de ilustración · Fantasía oscura</span><div>{social() or link('contacto/','Contacto')}</div></div></footer></body></html>"""
+<footer class="footer"><div class="wrap">{link('', '@byjahr','wordmark')}<span>Archivo de ilustración · Fantasía oscura</span><div>{social(show_handle=False) or link('contacto/','Contacto')}</div></div></footer></body></html>"""
     dest = OUT / (path if path.endswith('.html') else path + 'index.html')
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(doc, encoding='utf-8')
@@ -259,7 +264,7 @@ def build():
     if works: home += section('Obras recientes',gallery(works[:3]),link('portafolio/','Ver portafolio',direction='diagonal'),'02 / Portafolio')
     if 'bestiario' in COLS:
         home += section('Bestiario','<div class="band"><p class="lede">Un archivo de criaturas originales, de la primera ilustración a la ficha completa.</p>' + link('bestiario/','Abrir el Bestiario','cta','diagonal') + '</div>',kicker='03 / Fichas de campo')
-    home += section('En otros lugares',f'<p>{e(cfg["redes"])}</p>' + social())
+    home += section('Sigue el proceso',f'<p>{e(cfg["redes"])}</p>' + social(True))
     page('', '@byjahr', cfg['descripcion'],home,featured['imagen'] if featured else '')
     page('portafolio/','Portafolio',TITLE,head('Archivo visual','Portafolio','Explora todas las ilustraciones publicadas.') + gallery(works,[('coleccion','Colección'),('ano','Año'),('categoria','Categoría')],empty_content=empty('El archivo está comenzando a tomar forma. Las primeras ilustraciones se publicarán aquí muy pronto.')))
     page('colecciones/','Colecciones','Índice de colecciones de @byjahr.',head('Índice del archivo','Colecciones') + index(cols))
@@ -280,8 +285,8 @@ def build():
     profile += textblocks(cfg, [('influencias','Influencias')])
     profile += f'<section><h2>Técnica y proceso</h2><p>{e(cfg["proceso"])}</p><p>{e(cfg["proceso_continuacion"])}</p></section>'
     profile += f'<section><h2>Contacto profesional</h2><p>{e(cfg["contacto_profesional"])}</p>{social(True)}</section>'
-    page('sobre/','Sobre @byjahr',cfg['introduccion'],head('El artista','Sobre @byjahr',cfg['introduccion']) + f'<div class="prose">{profile}</div>')
-    contact = f'<div class="prose">{social(True)}<p>TikTok reúne videos, proceso y contenido breve.</p><p>{e(cfg["comisiones"])}</p></div>'
+    page('sobre/','Sobre el proyecto',cfg['introduccion'],head('El artista','Sobre el proyecto',cfg['introduccion']) + f'<div class="prose">{profile}</div>')
+    contact = f'<div class="prose">{social(True)}<p>{e(cfg["comisiones"])}</p></div>'
     page('contacto/','Contacto',cfg['contacto'],head('Correspondencia','Contacto',cfg['contacto']) + contact)
     page('404.html','Página no encontrada','No encontramos esta página.',head('Error 404','Lámina extraviada','Esta página no está en el archivo.') + link('portafolio/','Regresar al portafolio','cta'))
     (OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + ''.join(f'<url><loc>{xml(SITE+url(p))}</loc></url>' for p in routes if SITE) + '</urlset>\n')

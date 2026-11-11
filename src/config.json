@@ -1,10 +1,8 @@
 {
-  "instagram": "https://www.instagram.com/byjahr/",
-  "tiktok": "https://www.tiktok.com/@byjahr_",
   "email": "",
-  "bio": "Detrás de @byjahr hay un ilustrador digital interesado en construir mundos a través de imágenes. El proyecto reúne criaturas originales, retratos de personajes, escenas narrativas, fanart y series como Inktober, siempre dentro de una identidad visual inspirada en la tinta.",
+  "bio": "Detrás del proyecto hay un ilustrador digital interesado en construir mundos a través de imágenes. El archivo reúne criaturas originales, retratos de personajes, escenas narrativas, fanart y series como Inktober, siempre dentro de una identidad visual inspirada en la tinta.",
   "declaracion": "Cada ilustración busca sentirse como una página arrancada de un relato: un instante que muestra lo suficiente para despertar curiosidad, pero deja parte de la historia fuera del encuadre. La tinta, el contraste y los pequeños acentos rojos ayudan a convertir personajes y criaturas en fragmentos de mundos que continúan más allá de la imagen.",
-  "influencias": "El lenguaje visual de @byjahr toma elementos de la fantasía oscura, la imaginería gótica, los bestiarios, el grabado, la ilustración editorial y los mundos construidos alrededor de juegos de rol y relatos fantásticos.",
+  "influencias": "El lenguaje visual del proyecto toma elementos de la fantasía oscura, la imaginería gótica, los bestiarios, el grabado, la ilustración editorial y los mundos construidos alrededor de juegos de rol y relatos fantásticos.",
   "proceso": "Las piezas se realizan digitalmente, pero buscan conservar la imperfección y energía del dibujo tradicional. El estilo utiliza contornos expresivos, hatching y crosshatching visibles, grises construidos mediante líneas y pocos negros sólidos. El fondo suele permanecer blanco o marfil, mientras un único detalle rojo funciona como acento narrativo.",
   "retrato": "",
   "retrato_alt": "",
@@ -21,11 +19,16 @@
   "introduccion": "@byjahr es un proyecto de ilustración digital centrado en la fantasía oscura, las criaturas, los personajes y las escenas que parecen pertenecer a una historia más grande.",
   "lema": "Stories told in ink sometimes bleed.",
   "proceso_continuacion": "El proceso comienza con la composición y la silueta, continúa con la anatomía, la expresión y los elementos narrativos, y termina con el trabajo de línea, textura y contraste. En cada pieza se evita la apariencia fotográfica, tridimensional o excesivamente pulida para conservar una sensación artesanal.",
-  "contacto_profesional": "Para colaboraciones, proyectos artísticos o consultas sobre el trabajo de @byjahr, puedes escribir mediante Instagram.",
-  "instagram_usuario": "@byjahr",
-  "tiktok_usuario": "@byjahr_",
-  "contacto": "Para colaboraciones, proyectos artísticos, comisiones o consultas sobre las ilustraciones, puedes ponerte en contacto con @byjahr a través de Instagram.",
+  "contacto_profesional": "Para colaboraciones, proyectos artísticos o consultas sobre las ilustraciones, puedes escribir mediante Instagram.",
+  "contacto": "Para colaboraciones, proyectos artísticos, comisiones o consultas sobre las ilustraciones, puedes ponerte en contacto mediante Instagram.",
   "comisiones": "La disponibilidad para comisiones puede variar. Consulta el estado actual mediante Instagram.",
-  "redes": "Proceso, detalles y nuevas ilustraciones en Instagram y TikTok.",
-  "descripcion": "Portafolio de @byjahr: ilustración digital de fantasía oscura, criaturas originales y relatos contados en tinta."
+  "redes": "Nuevas ilustraciones, detalles y parte del proceso creativo en Instagram.",
+  "descripcion": "Portafolio de @byjahr: ilustración digital de fantasía oscura, criaturas originales y relatos contados en tinta.",
+  "redes_sociales": [
+    {
+      "nombre": "Instagram",
+      "usuario": "@byjahr",
+      "url": "https://www.instagram.com/byjahr/"
+    }
+  ]
 }

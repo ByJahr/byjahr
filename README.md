@@ -35,7 +35,7 @@ Abre http://127.0.0.1:8000. Tras editar contenido, vuelve a compilar en otra ter
 
 Duplica `plantillas/coleccion.json` en `src/content/colecciones/`. Usa un slug único y el mismo slug en las obras asociadas. Cambia `titulo` para renombrar la colección conservando su dirección. Usa `oculta: true` para retirar la colección y sus obras del sitio. Conserva los slugs `bestiario` y `caoz-con-todo` para sus funciones especiales. Las portadas opcionales van en `public/images/colecciones/`.
 
-Edita `src/config.json` para añadir biografía, declaración artística, influencias, proceso, retrato con texto alternativo, Instagram, TikTok y correo profesional. Los enlaces necesitan URL HTTPS. El favicon provisional se puede sustituir apuntando `favicon` a otro archivo de `public/`. Edita `categorias` para mantener las categorías permitidas.
+Edita `src/config.json` para añadir biografía, declaración artística, influencias, proceso, retrato con texto alternativo, redes sociales y correo profesional. Cada elemento de `redes_sociales` admite `nombre`, `usuario` y `url` HTTPS. El favicon provisional se puede sustituir apuntando `favicon` a otro archivo de `public/`. Edita `categorias` para mantener las categorías permitidas.
 
 ## Primera publicación
 
