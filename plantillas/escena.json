@@ -5,12 +5,20 @@
   "alt": "",
   "fecha": "2026-01-01",
   "coleccion": "caoz-con-todo",
-  "categoria": "Escena",
+  "categoria": "Escena narrativa",
   "descripcion": "",
   "tecnica": "",
   "destacada": false,
   "enlaces": [],
   "variantes": [],
   "personaje": "",
-  "campana": ""
+  "campana": "",
+  "descripcion_ampliada": "",
+  "formato": "",
+  "estado_publicacion": "borrador",
+  "orden": 0,
+  "creditos": "",
+  "etiquetas": [],
+  "ancho": 0,
+  "alto": 0
 }

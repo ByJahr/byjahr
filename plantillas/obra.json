@@ -5,10 +5,18 @@
   "alt": "",
   "fecha": "2026-01-01",
   "coleccion": "originales",
-  "categoria": "Ilustración",
+  "categoria": "Ilustración original",
   "descripcion": "",
   "tecnica": "",
   "destacada": false,
   "enlaces": [],
-  "variantes": []
+  "variantes": [],
+  "descripcion_ampliada": "",
+  "formato": "",
+  "estado_publicacion": "borrador",
+  "orden": 0,
+  "creditos": "",
+  "etiquetas": [],
+  "ancho": 0,
+  "alto": 0
 }

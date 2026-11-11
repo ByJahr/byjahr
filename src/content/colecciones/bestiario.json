@@ -1,6 +1,7 @@
 {
   "slug": "bestiario",
   "titulo": "Bestiario",
-  "descripcion": "Criaturas originales y sus fichas de campo.",
-  "oculta": false
+  "descripcion": "Una colección de criaturas originales construidas desde su silueta, anatomía y naturaleza. Cada entrada comienza como una ilustración y puede crecer hasta convertirse en una ficha completa de campo.",
+  "oculta": false,
+  "vacio": "La primera criatura está por revelarse."
 }

@@ -1,6 +1,7 @@
 {
   "slug": "originales",
   "titulo": "Ilustraciones originales",
-  "descripcion": "Archivo de ilustraciones originales de @byjahr.",
-  "oculta": false
+  "descripcion": "Personajes, reliquias, escenarios y relatos visuales que existen fuera de las series principales.",
+  "oculta": false,
+  "vacio": "Nuevos personajes, reliquias y relatos visuales aparecerán aquí."
 }

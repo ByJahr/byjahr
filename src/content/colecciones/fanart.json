@@ -1,6 +1,7 @@
 {
   "slug": "fanart",
   "titulo": "Fanart",
-  "descripcion": "Ilustraciones inspiradas en otras obras.",
-  "oculta": false
+  "descripcion": "Personajes y escenas de otras historias reinterpretados dentro del lenguaje visual de @byjahr.",
+  "oculta": false,
+  "vacio": "Las primeras reinterpretaciones se incorporarán próximamente."
 }
