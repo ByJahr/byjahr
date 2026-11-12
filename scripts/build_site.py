@@ -289,16 +289,17 @@ def work_detail(works):
             elif not inktober and work.get('categoria') not in (None, '', name):
                 context += f' · {work["categoria"]}'
             sequence = f'<span>Obra {number} de {total}</span>' if number else ''
-            description = work.get('descripcion', '')
+            description = work.get('detailText', work.get('descripcion', ''))
             if description in {'Ilustración de Inktober 2026.', 'Ilustración de Caoz con Todo.'}:
                 description = ''
-            intro = f'<p class="work-description">{e(description)}</p>' if description else ''
+            description_html = re.sub(r'\*([^*]+)\*', r'<em>\1</em>', e(description))
+            intro = f'<p class="work-description">{description_html}</p>' if description else ''
+            links = ''.join(f'<p><a href="{e(item["url"])}">{e(item["titulo"])}</a></p>' for item in work.get('enlaces',[]))
             metadata = [('Serie',name), ('Prompt',work.get('prompt') if inktober else ''),
-                        ('Año',attr(work,'ano')), ('Técnica',work.get('tecnica') or 'Ilustración digital'),
+                        ('Año',attr(work,'ano')), ('Técnica','Ilustración digital'),
                         ('Formato',work.get('formato')), ('Créditos',work.get('creditos'))]
             rows = ''.join(f'<div><dt>{field}</dt><dd>{e(value)}</dd></div>' for field,value in metadata if value)
             extra = textblocks(work, [('descripcion_ampliada','Sobre la obra'), ('aviso','Aviso de contenido')])
-            extra += ''.join(f'<p><a href="{e(item["url"])}">{e(item["titulo"])}</a></p>' for item in work.get('enlaces',[]))
             def adjacent(position, relation, caption, direction):
                 if not 0 <= position < len(members):
                     return ''
@@ -314,7 +315,7 @@ def work_detail(works):
     <a href="{url(route)}">{arrow('left')} Volver a {e(name)}</a>{sequence}
   </nav>
   <div class="work-layout">
-    <header class="work-title"><h1>{e(title)}</h1><p class="work-context">{e(context)}</p>{intro}</header>
+    <header class="work-title"><h1>{e(title)}</h1><p class="work-context">{e(context)}</p></header>
     <figure class="work-image">
       {img(work,True,sizes='(max-width: 740px) 94vw, (max-width: 1400px) 62vw, 830px')}
       <figcaption class="work-actions">
@@ -324,7 +325,7 @@ def work_detail(works):
         <span data-share-status role="status" aria-live="polite"></span>
       </figcaption>
     </figure>
-    <div class="work-info"><dl class="work-facts">{rows}</dl>{extra}</div>
+    <div class="work-info">{intro}{links}<dl class="work-facts">{rows}</dl>{extra}</div>
   </div>
   <section class="work-series">
     <h2>Dentro de la serie</h2><p>{e(name)}</p>

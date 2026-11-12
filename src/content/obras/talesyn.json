@@ -10,5 +10,13 @@
   "order": 0,
   "sourceFile": "Talesyn.jpg",
   "sourceDigest": "9809c7ee3f650cd0b3eb13b3efb4d61596c0be00d0ba087b592c8d2e9c49f54a",
-  "character": "Talesyn"
+  "character": "Talesyn",
+  "detailText": "Fan art dedicado a Talesyn, personaje de la serie de D&D *Caoz con Todo*.",
+  "technique": "Ilustración digital",
+  "enlaces": [
+    {
+      "titulo": "Ver Caoz con Todo en YouTube",
+      "url": "https://www.youtube.com/@CaozConTodo"
+    }
+  ]
 }

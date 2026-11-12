@@ -10,5 +10,13 @@
   "order": 0,
   "sourceFile": "Gero.jpg",
   "sourceDigest": "e8a4d9cf6132601f7707bd14a1a899add77ebeac440b89ce61cf6641c0d46641",
-  "character": "Gero"
+  "character": "Gero",
+  "detailText": "Fan art dedicado a Gero, Dungeon Master de la serie de D&D *Caoz con Todo*.",
+  "technique": "Ilustración digital",
+  "enlaces": [
+    {
+      "titulo": "Ver Caoz con Todo en YouTube",
+      "url": "https://www.youtube.com/@CaozConTodo"
+    }
+  ]
 }

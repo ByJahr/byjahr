@@ -10,5 +10,13 @@
   "order": 0,
   "sourceFile": "Rafaela.jpg",
   "sourceDigest": "192705677f8338e4dbb5f3c44482f6550a0af96cdd0b43c30221470dcfaffa18",
-  "character": "Rafaela"
+  "character": "Rafaela",
+  "detailText": "Fan art dedicado a Rafaela, personaje de la serie de D&D *Caoz con Todo*.",
+  "technique": "Ilustración digital",
+  "enlaces": [
+    {
+      "titulo": "Ver Caoz con Todo en YouTube",
+      "url": "https://www.youtube.com/@CaozConTodo"
+    }
+  ]
 }

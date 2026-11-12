@@ -10,5 +10,13 @@
   "order": 0,
   "sourceFile": "Fender.jpg",
   "sourceDigest": "9639641f36f1c649021fa98531e39e3effeb39b286bce52b99bf181ecbf702a9",
-  "character": "Fender"
+  "character": "Fender",
+  "detailText": "Fan art dedicado a Fender, personaje de la serie de D&D *Caoz con Todo*.",
+  "technique": "Ilustración digital",
+  "enlaces": [
+    {
+      "titulo": "Ver Caoz con Todo en YouTube",
+      "url": "https://www.youtube.com/@CaozConTodo"
+    }
+  ]
 }
