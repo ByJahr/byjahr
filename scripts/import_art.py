@@ -19,11 +19,16 @@ def classify(stem):
     if re.fullmatch(r'\d+', stem):
         number = int(stem)
         return 'obras', 'inktober-2026', f'inktober-{number}', f'Inktober · {number:02}', number
-    slug = unicodedata.normalize('NFKD', stem).encode('ascii', 'ignore').decode().lower()
+    fanart = stem.lower().startswith('fa_')
+    name = stem[3:] if fanart else stem
+    slug = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode().lower()
     slug = re.sub(r'[^a-z0-9]+', '-', slug).strip('-')
     if not slug:
         raise ValueError(f'No se puede obtener un identificador de {stem!r}.')
-    return 'obras', 'caoz-con-todo', slug, stem.replace('_', ' '), 0
+    title = name.replace('_', ' ').strip()
+    if fanart:
+        return 'obras', 'fanart', f'fa-{slug}', title, 0
+    return 'obras', 'caoz-con-todo', slug, title, 0
 
 def import_images():
     folder = ROOT / 'img'
@@ -53,6 +58,10 @@ def import_images():
         elif group == 'criaturas':
             data = dict(slug=slug,nombre=title,imagen=relative.as_posix(),alt=f'Ilustración del Bestiario, lámina {order}.',
                         descripcion='Ilustración del Bestiario.',orden=order)
+        elif collection == 'fanart':
+            data = dict(slug=slug, title=title, image=relative.as_posix(),
+                        alt=f'Fanart de {title}.', collection=collection, category='fanart',
+                        description='Fanart no oficial.', character=title, published=True, order=order)
         else:
             named = collection == 'caoz-con-todo'
             data = dict(slug=slug,title=title,image=relative.as_posix(),alt=(

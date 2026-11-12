@@ -1,0 +1,14 @@
+{
+  "slug": "fa-cubone",
+  "title": "Cubone",
+  "image": "images/artworks/fanart/fa-cubone.webp",
+  "alt": "Fanart de Cubone.",
+  "collection": "fanart",
+  "category": "fanart",
+  "description": "Fanart no oficial.",
+  "character": "Cubone",
+  "published": true,
+  "order": 0,
+  "sourceFile": "FA_Cubone.jpg",
+  "sourceDigest": "ae450a0cfb4345063d2d7585f168eb935d75a9d8ed5d606e9f2d7cd0b6726095"
+}

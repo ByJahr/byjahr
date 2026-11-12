@@ -8,6 +8,7 @@ Coloca tus archivos finales directamente en `img/`.
 
 | Nombre de archivo | Destino |
 | --- | --- |
+| `FA_Cubone.jpg`, `FA_Otro_nombre.png`, etc. | Fanart |
 | `Fender.jpg` o cualquier nombre de personaje | Caoz con Todo |
 | `1.JPG`, `2.jpg`, etc. | Inktober 2026, en orden numérico |
 | `B_1.jpg`, `B_2.png`, etc. | Bestiario, en orden numérico |
