@@ -337,13 +337,12 @@ def build():
         home += section('Bestiario','<div class="band"><p class="lede">Un archivo de criaturas originales, de la primera ilustración a la ficha completa.</p>' + link('bestiario/','Abrir el Bestiario','cta','diagonal') + '</div>',kicker='03 / Fichas de campo')
     home += section('Sigue el proceso',f'<p>{e(cfg["redes"])}</p>' + social(True))
     page('', '@byjahr', cfg['descripcion'],home,featured['imagen'] if featured else '')
-    page('portafolio/','Portafolio',TITLE,head('Archivo visual','Portafolio','Explora todas las ilustraciones publicadas.') + gallery(works,[('coleccion','Colección'),('ano','Año'),('categoria','Categoría')],empty_content=empty('El archivo está comenzando a tomar forma. Las primeras ilustraciones se publicarán aquí muy pronto.')))
+    page('portafolio/','Portafolio',TITLE,head('Archivo visual','Portafolio','Explora todas las ilustraciones publicadas.') + gallery(works,[('coleccion','Colección')],empty_content=empty('El archivo está comenzando a tomar forma. Las primeras ilustraciones se publicarán aquí muy pronto.')))
     page('colecciones/','Colecciones','Índice de colecciones de @byjahr.',head('Índice del archivo','Colecciones') + index(cols))
     for col in cols:
         if col['slug']=='bestiario': continue
         p = collection_path(col)
-        fields = [('categoria','Formato'),('personaje','Personaje'),('campana','Temporada o campaña'),('ano','Año')] if col['slug']=='caoz-con-todo' else [('categoria','Categoría'),('ano','Año')]
-        page(p,label(col),col['descripcion'],head('Colecciones',label(col),col['descripcion']) + img(col,True,'portrait') + gallery([d for d in works if d['coleccion']==col['slug']],fields,empty_content=empty(col['vacio']) if col.get('vacio') else ''),col.get('imagen',''),'colecciones/')
+        page(p,label(col),col['descripcion'],head('Colecciones',label(col),col['descripcion']) + img(col,True,'portrait') + gallery([d for d in works if d['coleccion']==col['slug']],empty_content=empty(col['vacio']) if col.get('vacio') else ''),col.get('imagen',''),'colecciones/')
     col = COLS.get('bestiario')
     if col:
         illustrations = [d for d in works if d['coleccion']=='bestiario']
