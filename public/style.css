@@ -32,17 +32,29 @@ blockquote{margin:2rem 0;padding-inline-start:1rem;border-inline-start:1px solid
 .work-return a,.work-actions a,.work-actions button,.work-neighbors a{display:inline-flex;align-items:center;min-height:44px}
 .work-return a{gap:.45em}
 .work-return span{white-space:nowrap}
-.work-layout{display:grid;grid-template-columns:minmax(0,65fr) minmax(0,35fr);grid-template-areas:"art title" "facts .";grid-template-rows:auto 1fr;column-gap:clamp(1.5rem,4vw,4rem);row-gap:1.25rem}
-.work-title{grid-area:title}
+.work-layout{
+ display:grid;
+ grid-template-columns:minmax(0,64fr) minmax(0,36fr);
+ grid-template-areas:"art sidebar";
+ align-items:start;
+ gap:clamp(3rem,4vw,4rem);
+}
+.work-sidebar{
+ grid-area:sidebar;
+ position:sticky;
+ top:1.5rem;
+ min-width:0;
+}
 .work-title h1{font-size:clamp(2.5rem,5vw,5rem);overflow-wrap:anywhere}
 .work-context{margin:.65rem 0 0;color:var(--mute)}
-.work-description{font:1.2rem/1.55 var(--serif);margin:0 0 1.25rem;max-width:65ch}
+.work-description{font:1.2rem/1.65 var(--serif);margin:0 0 1.25rem;max-width:65ch}
 .work-image{grid-area:art;margin:0;min-width:0}
 .work-image img{display:block;width:100%;height:auto;background:white}
 .work-actions{display:flex;align-items:center;gap:.35rem 1.25rem;flex-wrap:wrap;margin-top:.4rem;font-size:.88rem}
 .work-actions button{border:0;background:none;padding:0;color:var(--red);text-decoration:underline;text-underline-offset:.2em}
 .work-actions [data-share-status]{color:var(--mute)}
-.work-info{grid-area:facts;min-width:0}
+.work-info{margin-top:1.25rem;min-width:0}
+.work-info a{overflow-wrap:anywhere}
 .work-facts{margin:0;border-bottom:1px solid var(--line)}
 .work-facts div{display:grid;grid-template-columns:minmax(4rem,1fr) minmax(0,2fr);gap:1rem;padding:.65rem 0;border-top:1px solid var(--line)}
 .work-facts dt{color:var(--mute);font-size:.85rem}
@@ -53,7 +65,10 @@ blockquote{margin:2rem 0;padding-inline-start:1rem;border-inline-start:1px solid
 .work-neighbors a{justify-content:center;text-align:center;padding:.6rem}
 .work-neighbors a+a{border-inline-start:1px solid var(--line)}
 @media(max-width:740px){
- .work-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "art" "facts";gap:1rem}
+ .work-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"title" "art" "facts";gap:1rem;reading-flow:grid-rows}
+ .work-sidebar{display:contents}
+ .work-title{grid-area:title}
+ .work-info{grid-area:facts;margin-top:0}
  .work-title h1{font-size:clamp(2.25rem,10vw,3.5rem)}
  .work-neighbors{grid-auto-flow:row}
  .work-neighbors a+a{border-inline-start:0;border-top:1px solid var(--line)}
