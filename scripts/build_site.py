@@ -224,14 +224,17 @@ def attr(d, field):
     if field == 'ano': return d.get('ano') or d.get('fecha','')[:4]
     return d.get(field,'') or ('Ilustración' if field == 'estado' else '')
 
-def card(d, fields=(), beast=False):
+def card(d, fields=(), beast=False, *, detail_text=False):
     attrs = ' '.join(f'data-{k}="{e(attr(d,k))}"' for k,_ in fields)
     metadata = [COLS.get(d.get('coleccion'),{}).get('titulo',''),attr(d,'ano'),d.get('categoria','')]
     if beast: metadata = [attr(d,k) for k in ('tipo','tamano','entorno','amenaza','estado')]
     prompt = f'<p class="card-prompt">{e(d["prompt"])}</p>' if d.get('prompt') else ''
-    return f'<article class="card" data-entry {attrs}>{img(d)}<p class="eyebrow">{e(" · ".join(filter(None,metadata)))}</p><h3>{link(entrypath(d,beast),label(d))}</h3>{prompt}<p>{e(d.get("descripcion",""))}</p></article>'
+    description = e(d.get("descripcion", ""))
+    if detail_text and d.get("detailText"):
+        description = re.sub(r'\*([^*]+)\*', r'<em>\1</em>', e(d["detailText"]))
+    return f'<article class="card" data-entry {attrs}>{img(d)}<p class="eyebrow">{e(" · ".join(filter(None,metadata)))}</p><h3>{link(entrypath(d,beast),label(d))}</h3>{prompt}<p>{description}</p></article>'
 
-def gallery(items, fields=(), beast=False, empty_content=''):
+def gallery(items, fields=(), beast=False, empty_content='', *, detail_text=False):
     if not items:
         return empty_content
     controls = []
@@ -254,7 +257,7 @@ def gallery(items, fields=(), beast=False, empty_content=''):
                 + ''.join(controls)
                 + '<p class="filter-count" data-count aria-live="polite"></p></form>'
                 + '<p class="empty" data-no-results hidden>No hay coincidencias.</p>')
-    return form + '<div class="grid">' + ''.join(card(d, fields, beast) for d in items) + '</div>'
+    return form + '<div class="grid">' + ''.join(card(d, fields, beast, detail_text=detail_text) for d in items) + '</div>'
 
 def section(title, content, more='', kicker=''):
     return f'<section class="section"><p class="eyebrow">{e(kicker)}</p><div class="section-head"><h2>{e(title)}</h2>{more}</div>{content}</section>'
@@ -406,7 +409,7 @@ def build():
     hero_class = "hero" if featured else "hero hero-text"
     home = f'<section class="{hero_class}"><div><p class="eyebrow">Archivo visual · Fantasía oscura</p><h1>@byjahr</h1><p class="lede">{TITLE}</p>{link("portafolio/","Explorar portafolio","cta","diagonal")}</div>{plate}</section>'
     home += section('Colecciones',index(cols) or empty('No hay colecciones publicadas.'),link('colecciones/','Ver índice',direction='diagonal'),'01 / Índice')
-    if works: home += section('Obras recientes',gallery(works[:3]),link('portafolio/','Ver portafolio',direction='diagonal'),'02 / Portafolio')
+    if works: home += section('Obras recientes',gallery(works[:3], detail_text=True),link('portafolio/','Ver portafolio',direction='diagonal'),'02 / Portafolio')
     if 'bestiario' in COLS:
         home += section('Bestiario','<div class="band"><p class="lede">Un archivo de criaturas originales, de la primera ilustración a la ficha completa.</p>' + link('bestiario/','Abrir el Bestiario','cta','diagonal') + '</div>',kicker='03 / Fichas de campo')
     home += section('Sigue el proceso',f'<p>{e(cfg["redes"])}</p>' + social(True))
