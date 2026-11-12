@@ -1,4 +1,3 @@
-from cms import generate_admin
 from artwork import read_art, export_art
 import argparse
 import html
@@ -98,7 +97,6 @@ def validate():
                 else:
                     if group == 'colecciones':
                         if slug != path.stem: fail('el identificador fijo debe coincidir con el archivo de colección')
-                        d['_cms_file'] = path.as_posix()
                     found[slug] = d
                 for key, value in d.items():
                     if key in ('oculta', 'destacada', 'draft', 'published'):
@@ -144,7 +142,7 @@ def validate():
                 if bool(d.get('ancho')) != bool(d.get('alto')): fail('indica ancho y alto juntos')
                 if group == 'obras':
                     if d.get('estado_publicacion','publicada') not in ('publicada','borrador'): fail('estado de publicación inválido')
-                    if not d.get('fecha') and not re.fullmatch(r'[1-9][0-9]{3}',d.get('ano','')): fail('indica fecha o año de cuatro dígitos')
+                    if not d.get('sourceFile') and not d.get('fecha') and not re.fullmatch(r'[1-9][0-9]{3}',d.get('ano','')): fail('indica fecha o año de cuatro dígitos')
                     if d.get('ano') and (not re.fullmatch(r'[1-9][0-9]{3}',d['ano']) or (d.get('fecha') and d['fecha'][:4] != d['ano'])): fail('año inválido o distinto de la fecha')
                     if d.get('coleccion') not in groups['colecciones']: fail('colección inexistente')
                     if d.get('categoria') not in cfg['categorias'] + list(cfg['categorias_cms'].values()) + ['Ilustración','Escena','Estudio']: fail('categoría inválida')
@@ -303,8 +301,7 @@ def build():
     COLS = {x['slug']:x for x in cols}
     works = sorted([d for d in groups['obras'].values() if d['coleccion'] in COLS and d.get('estado_publicacion','publicada') == 'publicada'], key=lambda d: (-d.get('orden',0), d.get('fecha') or attr(d,'ano')), reverse=True)
     beasts = sorted([d for d in groups['criaturas'].values()
-                     if d.get('estado_publicacion','publicada') == 'publicada'], key=label) if 'bestiario' in COLS else []
-    generate_admin(OUT, cfg, groups['colecciones'])
+                     if d.get('estado_publicacion','publicada') == 'publicada'], key=lambda d: (d.get('orden', 0), label(d))) if 'bestiario' in COLS else []
     for item in cols + works + beasts:
         if not item.get('imagen'):
             continue
@@ -350,7 +347,7 @@ def build():
     page('contacto/','Contacto',cfg['contacto'],head('Correspondencia','Contacto',cfg['contacto']) + contact)
     page('404.html','Página no encontrada','No encontramos esta página.',head('Error 404','Lámina extraviada','Esta página no está en el archivo.') + link('portafolio/','Regresar al portafolio','cta'))
     (OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + ''.join(f'<url><loc>{xml(SITE+url(p))}</loc></url>' for p in routes if SITE) + '</urlset>\n')
-    (OUT/'robots.txt').write_text(f'User-agent: *\nAllow: /\nDisallow: {url("admin/")}\n' + (f'Sitemap: {SITE}{url("sitemap.xml")}\n' if SITE else ''))
+    (OUT/'robots.txt').write_text(f'User-agent: *\nAllow: /\n' + (f'Sitemap: {SITE}{url("sitemap.xml")}\n' if SITE else ''))
     (OUT/'.nojekyll').touch()
     print(f'{len(routes)} rutas y 404 generadas en {OUT}/ (base {BASE})')
 

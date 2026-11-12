@@ -1,0 +1,14 @@
+{
+  "slug": "mohamed",
+  "title": "Mohamed",
+  "image": "images/artworks/caoz-con-todo/mohamed.webp",
+  "alt": "Ilustración de Mohamed, de Caoz con Todo.",
+  "collection": "caoz-con-todo",
+  "category": "personaje",
+  "description": "Ilustración de Caoz con Todo.",
+  "published": true,
+  "order": 0,
+  "sourceFile": "Mohamed.png",
+  "sourceDigest": "4052a4e662e83606c151b0cac5b6757cf1eb0f011a5d1d5b94b1da5cff81e143",
+  "character": "Mohamed"
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "fender",
+  "title": "Fender",
+  "image": "images/artworks/caoz-con-todo/fender.webp",
+  "alt": "Ilustración de Fender, de Caoz con Todo.",
+  "collection": "caoz-con-todo",
+  "category": "personaje",
+  "description": "Ilustración de Caoz con Todo.",
+  "published": true,
+  "order": 0,
+  "sourceFile": "Fender.jpg",
+  "sourceDigest": "9639641f36f1c649021fa98531e39e3effeb39b286bce52b99bf181ecbf702a9",
+  "character": "Fender"
+}

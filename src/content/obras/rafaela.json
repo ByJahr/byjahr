@@ -1,0 +1,14 @@
+{
+  "slug": "rafaela",
+  "title": "Rafaela",
+  "image": "images/artworks/caoz-con-todo/rafaela.webp",
+  "alt": "Ilustración de Rafaela, de Caoz con Todo.",
+  "collection": "caoz-con-todo",
+  "category": "personaje",
+  "description": "Ilustración de Caoz con Todo.",
+  "published": true,
+  "order": 0,
+  "sourceFile": "Rafaela.jpg",
+  "sourceDigest": "192705677f8338e4dbb5f3c44482f6550a0af96cdd0b43c30221470dcfaffa18",
+  "character": "Rafaela"
+}

@@ -7,17 +7,17 @@ FORMATS = {'.jpg':'JPEG', '.jpeg':'JPEG', '.png':'PNG', '.webp':'WEBP', '.avif':
 MAX_INPUT = 8 * 1024 * 1024
 MAX_OUTPUT = 2 * 1024 * 1024
 
-def read_art(path):
+def read_art(path, *, original=False):
     path = Path(path)
     expected = FORMATS.get(path.suffix.lower())
     if not expected:
         raise ValueError('extensión no permitida (JPEG, PNG, WebP o AVIF)')
-    if path.stat().st_size > MAX_INPUT:
+    if not original and path.stat().st_size > MAX_INPUT:
         raise ValueError('imagen de más de 8 MiB: exporta una copia para la web')
     with Image.open(path) as source:
         if source.format != expected or getattr(source,'n_frames',1) != 1:
             raise ValueError('el archivo debe ser una imagen estática del formato indicado')
-        if source.width * source.height > 36_000_000:
+        if not original and source.width * source.height > 36_000_000:
             raise ValueError('la imagen supera 36 megapíxeles')
         source.load()
         image = ImageOps.exif_transpose(source)

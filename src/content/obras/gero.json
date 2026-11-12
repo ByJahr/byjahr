@@ -1,0 +1,14 @@
+{
+  "slug": "gero",
+  "title": "Gero",
+  "image": "images/artworks/caoz-con-todo/gero.webp",
+  "alt": "Ilustración de Gero, de Caoz con Todo.",
+  "collection": "caoz-con-todo",
+  "category": "personaje",
+  "description": "Ilustración de Caoz con Todo.",
+  "published": true,
+  "order": 0,
+  "sourceFile": "Gero.jpg",
+  "sourceDigest": "e8a4d9cf6132601f7707bd14a1a899add77ebeac440b89ce61cf6641c0d46641",
+  "character": "Gero"
+}

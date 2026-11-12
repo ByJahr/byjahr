@@ -1,0 +1,14 @@
+{
+  "slug": "adreida",
+  "title": "Adreida",
+  "image": "images/artworks/caoz-con-todo/adreida.webp",
+  "alt": "Ilustración de Adreida, de Caoz con Todo.",
+  "collection": "caoz-con-todo",
+  "category": "personaje",
+  "description": "Ilustración de Caoz con Todo.",
+  "published": true,
+  "order": 0,
+  "sourceFile": "Adreida.jpg",
+  "sourceDigest": "834c168936ee11f7762934ed19b509f86c00e398625a3b3b339ee289b6f61749",
+  "character": "Adreida"
+}

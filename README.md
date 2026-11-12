@@ -2,34 +2,36 @@
 
 Portafolio de fantasía oscura, archivo de colecciones y Bestiario. Python genera HTML estático; CSS y JavaScript nativos se encargan del diseño y los filtros. Las fichas son JSON. La compilación usa Pillow para procesar imágenes.
 
-## En VS Code
+## Agregar dibujos desde VS Code
 
-Abre esta carpeta y usa la terminal integrada. Necesitas Python 3.9 o superior e instalar las dependencias indicadas en «Editor visual y archivo de imágenes».
+Coloca tus archivos finales directamente en `img/`.
+
+| Nombre de archivo | Destino |
+| --- | --- |
+| `Fender.jpg` o cualquier nombre de personaje | Caoz con Todo |
+| `1.JPG`, `2.jpg`, etc. | Inktober 2026, en orden numérico |
+| `B_1.jpg`, `B_2.png`, etc. | Bestiario, en orden numérico |
+
+Admite JPEG, PNG, WebP y AVIF. Evita tener dos archivos con el mismo nombre base. Las fichas usan el nombre del archivo como punto de partida. Puedes editar el título, el texto alternativo y el resto de sus datos en `src/content/obras/` o `src/content/criaturas/`. Para ocultar una obra, usa `published: false`. Para ocultar una criatura, usa `estado_publicacion: "borrador"`. Borrar un original de `img/` no retira su copia publicada.
+
+Instala las dependencias la primera vez:
 
 ```sh
-python3 --version
-python3 scripts/build_site.py validate
-python3 scripts/build_site.py build
-python3 scripts/check.py
-python3 -m http.server 8000 --bind 127.0.0.1 --directory dist
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
-Abre http://127.0.0.1:8000. Tras editar contenido, vuelve a compilar en otra terminal y recarga. La vista de producción se guarda en `dist/` y se regenera por completo.
+Después de agregar archivos, ejecuta:
 
-## Primera obra
+```sh
+python scripts/import_art.py
+SITE_BASE=/byjahr/ python scripts/build_site.py build
+SITE_BASE=/byjahr/ python scripts/check.py
+python scripts/preview.py
+```
 
-1. Exporta tu ilustración a WebP, JPEG o PNG; conserva la proporción y usa un nombre corto como `mi-obra.webp`. Colócala en `public/images/obras/`.
-2. Ejecuta `cp plantillas/obra.json src/content/obras/mi-obra.json`.
-3. Completa título, texto alternativo, fecha AAAA-MM-DD, categoría y colección. La imagen se indica como `images/obras/mi-obra.webp`, sin `public/`. El año se deriva de la fecha. Marca `destacada: true` para optar a la portada (gana la más reciente entre las destacadas).
-4. Para variantes responsivas, exporta la misma imagen a varios anchos y agrega objetos como `{"imagen":"images/obras/mi-obra-640.webp","ancho":640}` en `variantes`. Incluye también la versión grande con su ancho real. El sitio sirve los archivos tal como se exportan. Los enlaces relacionados usan objetos `{"titulo":"Nombre","url":"https://…"}`.
-5. Compila y revisa la ficha desde Portafolio. Para Caoz con Todo, duplica `personaje.json` o `escena.json` en la misma carpeta de obras y completa `personaje` y `campana` si aplica.
-
-## Primera criatura
-
-1. Guarda la imagen en `public/images/bestiario/`.
-2. Ejecuta `cp plantillas/criatura.json src/content/criaturas/mi-criatura.json`.
-3. Cambia el slug, rellena el nombre, la ruta de imagen y la descripción corta. Escribe un texto alternativo si la descripción no describe la imagen. Los demás campos son opcionales. El estado puede ser Ilustración, Lore parcial o Entrada completa; sin estado se muestra Ilustración. Añade estadísticas únicamente si son homebrew original compatible con 5e.
-4. Compila y revisa la ficha desde Bestiario.
+Revisa la web en http://127.0.0.1:8021/byjahr/. La importación deja los originales intactos y crea copias WebP sin metadatos privados. Git ignora `img/` y conserva las copias de `public/images/artworks/` junto con sus fichas. Si vuelves a importar un original editado con el mismo nombre, se actualiza la copia y se conservan los cambios editoriales de la ficha.
 
 ## Colecciones e identidad
 
@@ -37,54 +39,12 @@ Duplica `plantillas/coleccion.json` en `src/content/colecciones/`. Usa un slug �
 
 Edita `src/config.json` para añadir biografía, declaración artística, influencias, proceso, retrato con texto alternativo, redes sociales y correo profesional. Cada elemento de `redes_sociales` admite `nombre`, `usuario` y `url` HTTPS. El favicon provisional se puede sustituir apuntando `favicon` a otro archivo de `public/`. Edita `categorias` para mantener las categorías permitidas.
 
-## Primera publicación
-
-En una terminal normal con permiso de escritura en esta carpeta y GitHub CLI autenticada:
-
-```sh
-git init -b main
-git add .gitignore .github README.md public scripts src plantillas
-git commit -m "Crear sitio oficial de @byjahr"
-gh auth status
-gh repo create byjahr-web --public --source=. --remote=origin
-gh api --method POST "repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/pages" -f build_type=workflow
-git push -u origin main
-```
-
-Si Git solicita nombre y correo, configura primero tu identidad local con `git config user.name` y `git config user.email`. Si GitHub exige un primer push para habilitar Pages, haz el push y después selecciona **Settings → Pages → Source → GitHub Actions**. Relanza el flujo desde **Actions → Publicar en GitHub Pages → Run workflow**. Si el repositorio ya existe, verifica su propietario y contenido antes de vincularlo. Consulta la URL que devuelve el trabajo de despliegue en Actions.
-
-El flujo usa el origen y prefijo detectados por GitHub Pages para crear enlaces, canonicals, sitemap y Open Graph. En un sitio de proyecto, GitHub sirve `robots.txt` bajo el prefijo del repositorio; las reglas de rastreo del dominio se gestionan en su raíz.
-
 ## Publicar cambios
 
-```sh
-python3 scripts/build_site.py build
-python3 scripts/check.py
-git add src public
-git commit -m "Actualizar archivo de ilustración"
-git push
-```
-
-Cada push a `main` ejecuta el flujo de publicación. Si el flujo falla, abre su registro en Actions. Si una imagen no carga, verifica la ruta relativa y las mayúsculas. Si la compilación indica slug duplicado, corrige el slug en la ficha correspondiente. Si una fecha falla, usa AAAA-MM-DD y una fecha real. Para comprobar un prefijo de producción:
+El repositorio es **ByJahr/byjahr**. Cada push a `main` inicia [GitHub Actions](https://github.com/ByJahr/byjahr/actions).
 
 ```sh
-SITE_URL=https://ejemplo.github.io SITE_BASE=/byjahr-web python3 scripts/build_site.py build
-SITE_BASE=/byjahr-web python3 scripts/check.py
+git add src/content public/images/artworks
+git commit -m "Agregar ilustraciones"
+git push origin main
 ```
-
-## Editor visual y archivo de imágenes
-
-Consulta [ADMIN_GUIDE.md](ADMIN_GUIDE.md) para publicar y configurar el acceso con GitHub. El generador sigue siendo Python. Para compilar, instala primero sus dependencias:
-
-```sh
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-SITE_BASE=/byjahr/ python scripts/build_site.py build
-SITE_BASE=/byjahr/ python scripts/check.py
-python scripts/preview.py
-```
-
-En otra terminal, ejecuta `npx decap-server@3.11.6` desde la raíz. Abre http://127.0.0.1:8021/byjahr/admin/ para guardar fichas localmente. Mantén el proxy en loopback y ciérralo al terminar. Vuelve a compilar para ver cambios en la galería.
-
-Los originales aprobados se reciben en `artwork-inbox/` y se conservan fuera de Git. Sube solo copias web con nombres descriptivos, sin metadatos privados. Decap guarda la copia en `public/uploads/` y la ficha JSON en `src/content/`. La compilación genera las versiones públicas en `dist/images/artworks/<colección>/`, sin duplicar la imagen entre galerías. Los borradores quedan fuera de la compilación pública.
