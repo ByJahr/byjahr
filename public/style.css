@@ -14,3 +14,16 @@ main{min-height:65vh}.hero{display:grid;grid-template-columns:1fr .83fr;gap:clam
 .art-link img{max-width:100%;height:auto;background:#fff}
 .art-link span{display:inline-block;margin-top:.75rem}
 blockquote{margin:2rem 0;padding-inline-start:1rem;border-inline-start:1px solid var(--red);color:var(--red);font:italic 1.5rem/1.4 var(--serif)}
+
+.filters{display:grid;gap:.85rem;margin:0 0 1.6rem;padding:1rem 0;border-block:1px solid var(--line)}
+.filters fieldset{border:0;min-inline-size:0;margin:0;padding:0}
+.filters legend{margin-bottom:.4rem;padding:0;font-size:.72rem;font-weight:650;letter-spacing:.15em;text-transform:uppercase;color:var(--mute)}
+.filter-options{display:flex;flex-wrap:wrap;gap:.35rem .55rem}
+.filters .filter-chip{position:relative;display:inline-flex;cursor:pointer}
+.filter-chip input{position:absolute;inline-size:1px;block-size:1px;min-height:0!important;opacity:0}
+.filter-chip span{display:inline-flex;align-items:center;min-height:44px;padding:.25rem .95rem;border:1px solid var(--line);border-radius:999px;font-size:.86rem}
+.filter-chip:hover span{border-color:var(--red);color:var(--red)}
+.filter-chip input:checked + span{background:var(--red);border-color:var(--red);color:var(--paper)}
+.filter-chip input:focus-visible + span{outline:2px solid var(--red);outline-offset:3px}
+.filter-count{margin:0;font-size:.8rem;color:var(--mute)}
+.card .card-prompt{margin:.35rem 0 0;color:var(--red);font-family:var(--serif);font-style:italic}

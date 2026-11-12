@@ -48,3 +48,7 @@ git add src/content public/images/artworks
 git commit -m "Agregar ilustraciones"
 git push origin main
 ```
+
+## Elegir la obra destacada
+
+Ejecuta `python3 scripts/destacar.py` y escribe el número de la ilustración que quieres en portada. Usa `0` para dejar la portada sin obra destacada. El selector guarda la elección en `src/config.json`. Para publicarla, haz commit de ese archivo y sube los cambios a `main`.

@@ -230,22 +230,33 @@ def card(d, fields=(), beast=False):
     attrs = ' '.join(f'data-{k}="{e(attr(d,k))}"' for k,_ in fields)
     metadata = [COLS.get(d.get('coleccion'),{}).get('titulo',''),attr(d,'ano'),d.get('categoria','')]
     if beast: metadata = [attr(d,k) for k in ('tipo','tamano','entorno','amenaza','estado')]
-    search = ' '.join(str(d.get(k,'')) for k in ('descripcion','descripcion_ampliada','tecnica','personaje','campana','intro','prompt'))
-    search += ' ' + ' '.join(d.get('etiquetas', []))
-    return f'<article class="card" data-entry {attrs} data-search="{e(search)}">{img(d)}<p class="eyebrow">{e(" · ".join(filter(None,metadata)))}</p><h3>{link(entrypath(d,beast),label(d))}</h3><p>{e(d.get("descripcion",""))}</p></article>'
+    prompt = f'<p class="card-prompt">{e(d["prompt"])}</p>' if d.get('prompt') else ''
+    return f'<article class="card" data-entry {attrs}>{img(d)}<p class="eyebrow">{e(" · ".join(filter(None,metadata)))}</p><h3>{link(entrypath(d,beast),label(d))}</h3>{prompt}<p>{e(d.get("descripcion",""))}</p></article>'
 
 def gallery(items, fields=(), beast=False, empty_content=''):
-    if not items: return empty_content
+    if not items:
+        return empty_content
+    controls = []
+    for key, name in fields:
+        options = sorted({attr(d, key) for d in items} - {''})
+        if len(options) < 2:
+            continue
+        choices = [('', 'Todas' if key in ('coleccion', 'categoria') else 'Todos')]
+        choices.extend((value, COLS[value]['titulo'] if key == 'coleccion' else value)
+                       for value in options)
+        buttons = ''.join(
+            f'<label class="filter-chip"><input type="radio" name="{key}" value="{e(value)}"'
+            f'{" checked" if not value else ""}><span>{e(label)}</span></label>'
+            for value, label in choices
+        )
+        controls.append(f'<fieldset><legend>{e(name)}</legend><div class="filter-options">{buttons}</div></fieldset>')
     form = ''
-    if fields:
-        controls = []
-        for key, name in fields:
-            opts = sorted({attr(d,key) for d in items} - {''})
-            if len(opts) < 2: continue
-            values = ''.join(f'<option value="{e(o)}">{e(COLS[o]["titulo"] if key == "coleccion" else o)}</option>' for o in opts)
-            controls.append(f'<label>{e(name)}<select name="{key}"><option value="">Todos</option>{values}</select></label>')
-        form = '<form class="filters" data-filters hidden role="search"><label>Buscar<input name="q" type="search"></label>' + ''.join(controls) + '<button type="reset">Limpiar</button></form><p data-count aria-live="polite"></p><p class="empty" data-no-results hidden>No hay coincidencias.</p>'
-    return form + '<div class="grid">' + ''.join(card(d,fields,beast) for d in items) + '</div>'
+    if controls:
+        form = ('<form class="filters" data-filters hidden aria-label="Filtros de la galería">'
+                + ''.join(controls)
+                + '<p class="filter-count" data-count aria-live="polite"></p></form>'
+                + '<p class="empty" data-no-results hidden>No hay coincidencias.</p>')
+    return form + '<div class="grid">' + ''.join(card(d, fields, beast) for d in items) + '</div>'
 
 def section(title, content, more='', kicker=''):
     return f'<section class="section"><p class="eyebrow">{e(kicker)}</p><div class="section-head"><h2>{e(title)}</h2>{more}</div>{content}</section>'
@@ -299,7 +310,7 @@ def build():
     order = ['bestiario','caoz-con-todo','inktober-2026','fanart','originales']
     cols.sort(key=lambda x: (x.get('orden', order.index(x['slug']) if x['slug'] in order else len(order)),label(x)))
     COLS = {x['slug']:x for x in cols}
-    works = sorted([d for d in groups['obras'].values() if d['coleccion'] in COLS and d.get('estado_publicacion','publicada') == 'publicada'], key=lambda d: (-d.get('orden',0), d.get('fecha') or attr(d,'ano')), reverse=True)
+    works = sorted([d for d in groups['obras'].values() if d['coleccion'] in COLS and d.get('estado_publicacion','publicada') == 'publicada'], key=lambda d: (d.get('orden',0) if d['coleccion'] == 'inktober-2026' else -d.get('orden',0), d.get('fecha') or attr(d,'ano')), reverse=True)
     beasts = sorted([d for d in groups['criaturas'].values()
                      if d.get('estado_publicacion','publicada') == 'publicada'], key=lambda d: (d.get('orden', 0), label(d))) if 'bestiario' in COLS else []
     for item in cols + works + beasts:
@@ -313,7 +324,10 @@ def build():
         filename, item['ancho'], item['alto'] = variants[-1]
         item['imagen'] = (folder / filename).as_posix()
         item['variantes'] = [dict(imagen=(folder / name).as_posix(),ancho=w) for name,w,_ in variants]
-    featured = next((d for d in works if d.get('destacada')), None)
+    if 'obra_destacada' in cfg:
+        featured = next((d for d in works if d['slug'] == cfg['obra_destacada']), None)
+    else:
+        featured = next((d for d in works if d.get('destacada')), None)
     plate = f'<figure>{link(entrypath(featured),label(featured))}{img(featured,True)}</figure>' if featured else ''
     hero_class = "hero" if featured else "hero hero-text"
     home = f'<section class="{hero_class}"><div><p class="eyebrow">Archivo visual · Fantasía oscura</p><h1>@byjahr</h1><p class="lede">{TITLE}</p>{link("portafolio/","Explorar portafolio","cta","diagonal")}</div>{plate}</section>'
