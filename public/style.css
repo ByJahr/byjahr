@@ -9,6 +9,15 @@ main{min-height:65vh}.hero{display:grid;grid-template-columns:1fr .83fr;gap:clam
 .arrow .link-arrow{margin-inline-start:0}
 .hero-text{grid-template-columns:1fr}
 .hero figure{margin:0;min-width:0}
+.hero figure > img{
+ display:block;
+ width:100%;
+ height:auto;
+ margin-top:.5rem;
+ padding:clamp(.35rem,1vw,.75rem);
+ border:1px solid var(--line);
+ background:#fff;
+}
 .social-links{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem 1.25rem}
 .art-link{display:block;align-self:start}
 .art-link img{max-width:100%;height:auto;background:#fff}
