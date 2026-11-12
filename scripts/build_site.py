@@ -53,8 +53,6 @@ def normalize_entry(group, path, data):
             data['ano'] = str(data['ano'])
         if 'categoria' in data:
             data['categoria'] = cfg['categorias_cms'].get(data['categoria'],data['categoria'])
-        if not data.get('descripcion'):
-            raise ValueError('falta la descripción breve')
         related = data.pop('externalLink','')
         if related:
             data['enlaces'] = [{'titulo':'Enlace relacionado','url':related}]
@@ -101,7 +99,7 @@ def validate():
                 for key, value in d.items():
                     if key in ('oculta', 'destacada', 'draft', 'published'):
                         if not isinstance(value, bool): fail(f'{key} debe ser booleano')
-                    elif key in ('orden','ancho','alto'):
+                    elif key in ('orden','ancho','alto','sequenceNumber','sequenceTotal'):
                         if type(value) is not int or value < 0: fail(f'{key} debe ser un entero no negativo')
                     elif key == 'etiquetas':
                         if not isinstance(value,list) or not all(isinstance(x,str) for x in value): fail('etiquetas debe ser una lista de textos')
@@ -207,11 +205,11 @@ def page(path, title, description, body, image='', current=None):
 def head(kicker, title, desc=''):
     return f'<header class="page-head"><p class="eyebrow">{e(kicker)}</p><h1>{e(title)}</h1><p class="lede">{e(desc)}</p></header>'
 
-def img(d, eager=False, cls=''):
+def img(d, eager=False, cls='', sizes='(max-width: 740px) 94vw, 48vw'):
     if not d.get('imagen'): return ''
     variants = d.get('variantes', [])
     srcset = ', '.join(f'{url(v["imagen"])} {v["ancho"]}w' for v in variants)
-    responsive = f' srcset="{e(srcset)}" sizes="(max-width: 740px) 94vw, 48vw"' if variants else ''
+    responsive = f' srcset="{e(srcset)}" sizes="{e(sizes)}"' if variants else ''
     dimensions = f' width="{d["ancho"]}" height="{d["alto"]}"' if d.get('ancho') and d.get('alto') else ''
     return f'<img{dimensions} class="{cls}" src="{url(d["imagen"])}" alt="{e(d.get("alt") or d.get("descripcion",""))}" loading="{"eager" if eager else "lazy"}" decoding="async"{responsive}>'
 
@@ -266,6 +264,79 @@ def index(cols):
 
 def textblocks(d, fields):
     return ''.join(f'<section><h2>{e(title)}</h2><p>{e(d[k])}</p></section>' for k,title in fields if d.get(k))
+
+def work_title(work):
+    return (work.get('prompt') if work['coleccion'] == 'inktober-2026' else None) or label(work)
+
+def work_detail(works):
+    series = {}
+    for work in works:
+        series.setdefault(work['coleccion'], []).append(work)
+    for slug, members in series.items():
+        collection = COLS[slug]
+        name = label(collection)
+        route = collection_path(collection)
+        inktober = slug == 'inktober-2026'
+        if all(work.get('sequenceNumber') for work in members):
+            members.sort(key=lambda work: work['sequenceNumber'])
+        for index, work in enumerate(members):
+            title = work_title(work)
+            number = work.get('sequenceNumber')
+            total = work.get('sequenceTotal') or len(members)
+            context = name
+            if inktober and number:
+                context += f' · Día {number}'
+            elif not inktober and work.get('categoria') not in (None, '', name):
+                context += f' · {work["categoria"]}'
+            sequence = f'<span>Obra {number} de {total}</span>' if number else ''
+            description = work.get('descripcion', '')
+            if description in {'Ilustración de Inktober 2026.', 'Ilustración de Caoz con Todo.'}:
+                description = ''
+            intro = f'<p class="work-description">{e(description)}</p>' if description else ''
+            metadata = [('Serie',name), ('Prompt',work.get('prompt') if inktober else ''),
+                        ('Año',attr(work,'ano')), ('Técnica',work.get('tecnica') or 'Ilustración digital'),
+                        ('Formato',work.get('formato')), ('Créditos',work.get('creditos'))]
+            rows = ''.join(f'<div><dt>{field}</dt><dd>{e(value)}</dd></div>' for field,value in metadata if value)
+            extra = textblocks(work, [('descripcion_ampliada','Sobre la obra'), ('aviso','Aviso de contenido')])
+            extra += ''.join(f'<p><a href="{e(item["url"])}">{e(item["titulo"])}</a></p>' for item in work.get('enlaces',[]))
+            def adjacent(position, relation, caption, direction):
+                if not 0 <= position < len(members):
+                    return ''
+                neighbor = members[position]
+                neighbor_title = f'Inktober {neighbor["sequenceNumber"]}' if inktober and neighbor.get('sequenceNumber') else work_title(neighbor)
+                return (f'<a href="{url(entrypath(neighbor))}" rel="{relation}">'
+                        f'<span>{caption}: {e(neighbor_title)}</span>{arrow(direction)}</a>')
+            count = len(members)
+            index_text = f'Ver las {count} obras' if count > 1 else 'Ver colección'
+            body = f"""
+<article class="work">
+  <nav class="work-return" aria-label="Volver a la colección">
+    <a href="{url(route)}">{arrow('left')} Volver a {e(name)}</a>{sequence}
+  </nav>
+  <div class="work-layout">
+    <header class="work-title"><h1>{e(title)}</h1><p class="work-context">{e(context)}</p>{intro}</header>
+    <figure class="work-image">
+      {img(work,True,sizes='(max-width: 740px) 94vw, (max-width: 1400px) 62vw, 830px')}
+      <figcaption class="work-actions">
+        <a href="{url(work['imagen'])}" target="_blank" rel="noopener noreferrer">Ver a tamaño completo {arrow()}</a>
+        <button data-share hidden type="button">Copiar enlace</button>
+        <input data-share-url hidden readonly aria-label="Enlace de la obra">
+        <span data-share-status role="status" aria-live="polite"></span>
+      </figcaption>
+    </figure>
+    <div class="work-info"><dl class="work-facts">{rows}</dl>{extra}</div>
+  </div>
+  <section class="work-series">
+    <h2>Dentro de la serie</h2><p>{e(name)}</p>
+    <nav class="work-neighbors" aria-label="Navegación de la colección">
+      {adjacent(index - 1,'prev','Obra anterior','left')}
+      {link(route,index_text)}
+      {adjacent(index + 1,'next','Obra siguiente','right')}
+    </nav>
+  </section>
+</article>"""
+            page(entrypath(work), f'{title} · {name}', description or context,
+                 body, work['imagen'], 'portafolio/')
 
 def detail(items, beast=False):
     for i,d in enumerate(items):
@@ -348,7 +419,7 @@ def build():
         illustrations = [d for d in works if d['coleccion']=='bestiario']
         extra = section('Ilustraciones del Bestiario',gallery(illustrations)) if illustrations else ''
         page('bestiario/',label(col),col['descripcion'],head('Fichas de campo',label(col),col['descripcion']) + img(col,True,'portrait') + gallery(beasts,[('tipo','Tipo'),('tamano','Tamaño'),('entorno','Entorno'),('amenaza','Amenaza'),('estado','Estado')],True,empty(col['vacio']) + '<p>El Bestiario reunirá criaturas originales ilustradas en tinta, desde sus primeros avistamientos hasta sus fichas completas de campo.</p>') + extra,col.get('imagen',''))
-    detail(works)
+    work_detail(works)
     detail(beasts,True)
     profile = textblocks(cfg, [('bio','Biografía'),('declaracion','Declaración artística')])
     profile += f'<blockquote lang="en">{e(cfg["lema"])}</blockquote>'

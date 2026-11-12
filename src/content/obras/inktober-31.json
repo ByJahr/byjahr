@@ -6,10 +6,13 @@
   "collection": "inktober-2026",
   "category": "inktober",
   "year": 2026,
-  "description": "Ilustración de Inktober 2026.",
+  "description": "Una pluma cede bajo la presión mientras la tinta roja convierte el último trazo de Inktober en una herida.",
   "published": true,
   "order": 31,
   "sourceFile": "31.jpg",
   "sourceDigest": "3d7390e228153324eafc9a6d86d77096f4d206b22d98e34b8d3b192dc693c53e",
-  "inktoberPrompt": "Flex"
+  "inktoberPrompt": "Flex",
+  "sequenceNumber": 31,
+  "sequenceTotal": 31,
+  "technique": "Ilustración digital"
 }
