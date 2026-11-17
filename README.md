@@ -52,4 +52,4 @@ git push origin main
 
 ## Elegir la obra destacada
 
-Ejecuta `python3 scripts/destacar.py` y escribe el número de la ilustración que quieres en portada. Usa `0` para dejar la portada sin obra destacada. El selector guarda la elección en `src/config.json`. Para publicarla, haz commit de ese archivo y sube los cambios a `main`.
+La portada enlaza automáticamente a la ilustración o criatura publicada que se añadió más recientemente al historial del repositorio. Agrega la nueva ficha y su imagen, registra ambos archivos en Git y sube los cambios a `main`. Editar una ficha existente conserva su posición en ese historial.

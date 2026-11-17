@@ -9,7 +9,7 @@ main{min-height:65vh}.hero{display:grid;grid-template-columns:1fr .83fr;gap:clam
 .arrow .link-arrow{margin-inline-start:0}
 .hero-text{grid-template-columns:1fr}
 .hero figure{margin:0;min-width:0}
-.hero figure > img{
+.hero figure > a > img{
  display:block;
  width:100%;
  height:auto;

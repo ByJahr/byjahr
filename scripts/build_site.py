@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote, urlsplit
@@ -22,6 +23,7 @@ url = lambda path='': BASE + quote(path.lstrip('/'), safe='/')
 slug_pattern = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
 errors = []
 groups = {}
+content_paths = {}
 cfg = json.loads(Path('src/config.json').read_text())
 statuses = ('Ilustración', 'Lore parcial', 'Entrada completa')
 
@@ -149,6 +151,7 @@ def validate():
                     if group == 'colecciones':
                         if slug != path.stem: fail('el identificador fijo debe coincidir con el archivo de colección')
                     found[slug] = d
+                    content_paths[group, slug] = path.as_posix()
                 for key, value in d.items():
                     if key in ('oculta', 'destacada', 'draft', 'published'):
                         if not isinstance(value, bool): fail(f'{key} debe ser booleano')
@@ -561,6 +564,28 @@ def detail(items, beast=False):
              head(section_name,label(d),intro) + f'<div class="detail">{enlarged}<div class="prose">{desc}<dl>{defs}</dl>{stats_link}{textblocks(d,fields)}{f"<ul>{related}</ul>" if related else ""}{share}</div></div>{stats}<nav class="pager" aria-label="Entre fichas">{link(section_path,"Volver a " + section_name)}{pager}</nav>',
              d['imagen'],section_path)
 
+def latest_entry(works, beasts):
+    candidates = {
+        content_paths[group, item['slug']]: (item, is_creature)
+        for group, items, is_creature in (('obras', works, False), ('criaturas', beasts, True))
+        for item in items
+    }
+    # Use the commit that added the entry so edits do not change the featured work.
+    try:
+        history = subprocess.run(
+            ['git', 'log', '--root', '--diff-filter=A', '--format=', '--name-only',
+             'HEAD', '--', 'src/content/obras', 'src/content/criaturas'],
+            capture_output=True, check=True, text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        history = None
+    if history:
+        for path in history.stdout.splitlines():
+            if path in candidates:
+                return candidates[path]
+    return next(iter(candidates.values()), (None, False))
+
+
 def build():
     global COLS
     if OUT.is_symlink(): raise SystemExit('dist no puede ser un enlace simbólico')
@@ -597,11 +622,12 @@ def build():
         filename, item['ancho'], item['alto'] = variants[-1]
         item['imagen'] = (folder / filename).as_posix()
         item['variantes'] = [dict(imagen=(folder / name).as_posix(),ancho=w) for name,w,_ in variants]
-    if 'obra_destacada' in cfg:
-        featured = next((d for d in works if d['slug'] == cfg['obra_destacada']), None)
-    else:
-        featured = next((d for d in works if d.get('destacada')), None)
-    plate = f'<figure>{link(entrypath(featured),label(featured))}{img(featured,True)}</figure>' if featured else ''
+    featured, is_creature = latest_entry(works, beasts)
+    plate = ''
+    if featured:
+        target = url(entrypath(featured, is_creature))
+        plate = (f'<figure><a href="{e(target)}" aria-label="{e(label(featured))}">'
+                 f'{e(label(featured))}{img(featured, True)}</a></figure>')
     hero_class = "hero" if featured else "hero hero-text"
     home = f'<section class="{hero_class}"><div><p class="eyebrow">Archivo visual · Fantasía oscura</p><h1>@byjahr</h1><p class="lede">{TITLE}</p>{link("portafolio/","Explorar portafolio","cta","diagonal")}</div>{plate}</section>'
     home += section('Colecciones',index(cols) or empty('No hay colecciones publicadas.'),link('colecciones/','Ver índice',direction='diagonal'),'01 / Índice')
