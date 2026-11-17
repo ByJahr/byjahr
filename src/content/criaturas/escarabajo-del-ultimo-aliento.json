@@ -1,0 +1,116 @@
+{
+  "slug": "escarabajo-del-ultimo-aliento",
+  "nombre": "El Escarabajo del Último Aliento",
+  "descripcion": "Del tamaño de un perro grande, este escarabajo aparece cerca de seres agonizantes para capturar su última exhalación antes de que se disipe. Es un carroñero de aquello que normalmente no puede tocarse.",
+  "imagen": "images/artworks/bestiario/escarabajo-del-ultimo-aliento.webp",
+  "alt": "Ilustración en tinta negra de un escarabajo fantástico del tamaño de un perro grande avanzando por una cripta, con seis patas, élitros abiertos, abdomen transparente y una pequeña niebla roja.",
+  "orden": 1,
+  "editorial": {
+    "registro": "001",
+    "seo_titulo": "El Escarabajo del Último Aliento — Bestiario de @byjahr",
+    "seo_descripcion": "Primera entrada del Bestiario de @byjahr: un escarabajo carroñero del tamaño de un perro grande que captura el último aliento de los seres agonizantes.",
+    "apertura": "No provoca la muerte. La reconoce.",
+    "datos": [
+      [
+        "ESCALA",
+        "Similar a un perro grande"
+      ],
+      [
+        "NATURALEZA",
+        "Carroñero del umbral"
+      ],
+      [
+        "RASGO PRINCIPAL",
+        "Captura del último aliento"
+      ]
+    ],
+    "concepto": [
+      "Un carroñero de lo invisible",
+      "El Escarabajo del Último Aliento no necesita abatir a sus víctimas. Aparece cuando la muerte ya ha comenzado y recoge la última respiración antes de que desaparezca. Su diseño combina la resistencia de un insecto acorazado con un órgano de alimentación estrecho y especializado."
+    ],
+    "anatomia": [
+      [
+        "Cabeza y mandíbulas",
+        "Posee una sola cabeza, dos antenas delgadas y dos mandíbulas curvas que le permiten sujetarse mientras se alimenta."
+      ],
+      [
+        "Sifón de alimentación",
+        "Debajo de las mandíbulas nace un tubo orgánico, estrecho, flexible y segmentado. Está diseñado para absorber la última exhalación sin parecer una trompa, una lengua, un tentáculo ni un aguijón."
+      ],
+      [
+        "Carapacho",
+        "El tórax es ancho y está protegido por un caparazón negro, desgastado y resistente. Su superficie conserva cicatrices y marcas de uso."
+      ],
+      [
+        "Seis patas",
+        "Tiene exactamente seis patas. Las delanteras son robustas y sirven para sujetarse y avanzar; las posteriores están adaptadas para proporcionar impulso."
+      ],
+      [
+        "Élitros y alas",
+        "Dos élitros parcialmente abiertos protegen el abdomen. Debajo permanecen plegadas las alas membranosas."
+      ],
+      [
+        "Abdomen transparente",
+        "El abdomen deja entrever aquello que la criatura ha recogido. La niebla roja funciona como el único acento cromático de toda la lámina."
+      ]
+    ],
+    "diseno": [
+      "Diseñado desde la función",
+      "Cada parte del cuerpo responde a una necesidad concreta: protegerse, desplazarse, aferrarse y recolectar. La masa ancha y pesada del caparazón contrasta con la delicadeza del sifón, mientras que el abdomen transparente vuelve visible aquello que la criatura roba en el instante de la muerte."
+    ],
+    "tecnica": [
+      [
+        "Medio",
+        "Tinta negra"
+      ],
+      [
+        "Valores",
+        "Achurado y crosshatching"
+      ],
+      [
+        "Acento",
+        "Niebla roja"
+      ],
+      [
+        "Formato original",
+        "Vertical 4:5"
+      ],
+      [
+        "Ilustración y diseño",
+        "@byjahr"
+      ]
+    ],
+    "detalles": [
+      {
+        "titulo": "Mandíbulas y sifón",
+        "recorte": [
+          0.18,
+          0.5,
+          0.47,
+          0.68
+        ]
+      },
+      {
+        "titulo": "Caparazón, élitros y alas",
+        "recorte": [
+          0.39,
+          0.25,
+          0.84,
+          0.49
+        ]
+      },
+      {
+        "titulo": "Abdomen transparente y niebla roja",
+        "recorte": [
+          0.48,
+          0.19,
+          0.82,
+          0.4
+        ]
+      }
+    ],
+    "siguiente": {
+      "titulo": "REGISTRO 002 — PRÓXIMAMENTE"
+    }
+  }
+}

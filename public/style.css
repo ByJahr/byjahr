@@ -82,3 +82,70 @@ blockquote{margin:2rem 0;padding-inline-start:1rem;border-inline-start:1px solid
  .work-neighbors{grid-auto-flow:row}
  .work-neighbors a+a{border-inline-start:0;border-top:1px solid var(--line)}
 }
+
+.bestiary-entry{
+ --paper:#f4f1e9;
+ --ink:#111;
+ --mute:#68635c;
+ --line:#d7d0c4;
+ --red:#a51f24;
+ color:var(--ink);
+ background:var(--paper);
+ box-shadow:0 0 0 100vmax var(--paper);
+ clip-path:inset(0 -100vmax);
+ padding-block:clamp(2rem,5vw,5rem);
+}
+.bestiary-hero{
+ display:grid;
+ grid-template-columns:minmax(0,2fr) minmax(0,3fr);
+ grid-template-areas:"heading plate" "summary plate";
+ grid-template-rows:auto 1fr;
+ gap:1.5rem clamp(1.5rem,4vw,4rem);
+ align-items:start;
+}
+.bestiary-heading{grid-area:heading}
+.bestiary-heading h1{font-size:clamp(2.7rem,5.5vw,5.75rem)}
+.bestiary-opening{font:italic clamp(1.3rem,2.3vw,2rem)/1.35 var(--serif);margin:1.25rem 0 0}
+.bestiary-summary{grid-area:summary;max-width:48ch}
+.bestiary-summary>p{margin-top:0}
+.bestiary-plate{grid-area:plate;margin:0;min-width:0}
+.bestiary-plate img{display:block;width:100%;height:auto;object-fit:contain}
+.bestiary-plate figcaption{margin-top:.5rem;text-align:right}
+.bestiary-view-link{display:inline-flex;align-items:center;min-height:44px}
+.bestiary-entry a:not(.cta){color:inherit;text-decoration-color:var(--line)}
+.bestiary-entry a:hover{text-decoration-color:var(--red)}
+.bestiary-facts{margin:1.5rem 0 0}
+.bestiary-facts div{border-top:1px solid var(--line);padding:.65rem 0}
+.bestiary-facts dt{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.bestiary-facts dd{margin:0}
+.bestiary-section,.bestiary-design,.bestiary-end{margin-top:clamp(3rem,8vw,7rem)}
+.bestiary-section>p{max-width:60ch;font:clamp(1.15rem,2vw,1.45rem)/1.6 var(--serif)}
+.bestiary-concept{border-inline-start:1px solid var(--red);padding-inline-start:clamp(1rem,4vw,3rem)}
+.bestiary-anatomy,.bestiary-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem;margin-top:1.5rem}
+.bestiary-anatomy{padding:0;list-style:none}
+.bestiary-anatomy li{border-top:1px solid var(--line);padding-top:.8rem}
+.bestiary-anatomy li>span{color:var(--red);font-size:.75rem}
+.bestiary-anatomy h3{margin-top:.4rem}
+.bestiary-anatomy p,.bestiary-details figcaption{color:var(--mute)}
+.bestiary-design{display:grid;grid-template-columns:3fr 2fr;gap:clamp(1rem,5vw,4rem);align-items:start}
+.bestiary-design>*{margin-top:0}
+.bestiary-details figure{margin:0}
+.bestiary-details img{display:block;width:100%;height:auto}
+.bestiary-details figcaption{padding-top:.65rem;font-size:.9rem}
+.bestiary-end{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;border-top:1px solid var(--line);padding-top:1rem}
+.bestiary-viewer{width:min(96vw,76rem);max-height:94dvh;padding:1rem;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.bestiary-viewer::backdrop{background:rgb(244 241 233 / 92%)}
+.bestiary-viewer-tools{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
+.bestiary-viewer-tools h2{font-size:clamp(1.15rem,3vw,1.7rem);margin-inline-end:auto}
+.bestiary-viewer-tools button{padding-inline:.65rem}
+.bestiary-viewer-body{overflow:auto;max-height:calc(94dvh - 9rem)}
+.bestiary-viewer-body img{display:block;width:auto;height:auto;max-width:100%;max-height:calc(94dvh - 9rem);margin-inline:auto;object-fit:contain}
+.bestiary-viewer[data-zoomed] img{width:200%;max-width:none;max-height:none;margin:0}
+@media(max-width:740px){
+ .bestiary-hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"heading" "plate" "summary"}
+ .bestiary-anatomy,.bestiary-details,.bestiary-design{grid-template-columns:minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:no-preference){
+ .bestiary-entry{animation:bestiary-appear .36s ease-out}
+ @keyframes bestiary-appear{from{opacity:.5}to{opacity:1}}
+}

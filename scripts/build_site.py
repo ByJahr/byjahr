@@ -60,6 +60,37 @@ def normalize_entry(group, path, data):
         data['imagen'] = data['imagen'].removeprefix('/byjahr/').removeprefix('/')
     return data
 
+def validate_bestiary_editorial(data):
+    def nonempty(value):
+        return isinstance(value, str) and bool(value.strip())
+
+    if not isinstance(data, dict):
+        raise ValueError('editorial debe ser un objeto')
+    for field in ('registro', 'apertura'):
+        if not nonempty(data.get(field)):
+            raise ValueError(f'editorial: falta {field}')
+    for field in ('datos', 'anatomia', 'tecnica', 'concepto', 'diseno'):
+        value = data.get(field)
+        pairs = [value] if field in ('concepto', 'diseno') else value
+        if not isinstance(pairs, list) or not all(
+            isinstance(pair, list) and len(pair) == 2 and all(map(nonempty, pair)) for pair in pairs
+        ):
+            raise ValueError(f'editorial: pares de texto inválidos en {field}')
+    if not isinstance(data.get('detalles'), list):
+        raise ValueError('editorial: detalles debe ser una lista')
+    for detail in data['detalles']:
+        if not isinstance(detail, dict) or not nonempty(detail.get('titulo')):
+            raise ValueError('editorial: falta título del detalle')
+        crop = detail.get('recorte')
+        if not (isinstance(crop, list) and len(crop) == 4
+                and all(type(n) in (float, int) for n in crop)
+                and 0 <= crop[0] < crop[2] <= 1 and 0 <= crop[1] < crop[3] <= 1):
+            raise ValueError('editorial: recorte inválido')
+    for key in ('anterior', 'siguiente'):
+        if key in data and not isinstance(data[key], dict):
+            raise ValueError(f'editorial: {key} debe ser un objeto')
+
+
 def validate():
     for network in cfg.get('redes_sociales', []):
         if not network.get('nombre') or not external(network.get('url')):
@@ -120,6 +151,8 @@ def validate():
                                         fail('variante inválida: usa imagen existente y ancho positivo único')
                                     else:
                                         widths.add(width)
+                    elif group == 'criaturas' and key == 'editorial':
+                        validate_bestiary_editorial(value)
                     elif not isinstance(value,str):
                         fail(f'{key} debe ser texto')
                 if d.get('imagen'):
@@ -177,10 +210,11 @@ def link(path, label, cls='', direction=None):
     icon = arrow(direction) if direction else ''
     return f'<a class="{cls}" href="{e(url(path))}">{e(label)}{icon}</a>'
 
-def page(path, title, description, body, image='', current=None):
+def page(path, title, description, body, image='', current=None, *, seo_title=None):
     current = path if current is None else current
     nav = ''.join(f'<a href="{e(url(p))}"{" aria-current=page" if current == p else ""}>{label}</a>' for p,label in NAV if p != 'bestiario/' or 'bestiario' in COLS)
     full = '@byjahr · Ilustración de fantasía oscura' if not path else f'{title} · @byjahr'
+    full = seo_title or full
     absolute = SITE + url(path)
     meta = f'<link rel="canonical" href="{e(absolute)}"><meta property="og:url" content="{e(absolute)}">' if SITE and path != '404.html' else ''
     if image and SITE:
@@ -205,13 +239,14 @@ def page(path, title, description, body, image='', current=None):
 def head(kicker, title, desc=''):
     return f'<header class="page-head"><p class="eyebrow">{e(kicker)}</p><h1>{e(title)}</h1><p class="lede">{e(desc)}</p></header>'
 
-def img(d, eager=False, cls='', sizes='(max-width: 740px) 94vw, 48vw'):
+def img(d, eager=False, cls='', sizes='(max-width: 740px) 94vw, 48vw', *, priority=False):
     if not d.get('imagen'): return ''
     variants = d.get('variantes', [])
     srcset = ', '.join(f'{url(v["imagen"])} {v["ancho"]}w' for v in variants)
     responsive = f' srcset="{e(srcset)}" sizes="{e(sizes)}"' if variants else ''
     dimensions = f' width="{d["ancho"]}" height="{d["alto"]}"' if d.get('ancho') and d.get('alto') else ''
-    return f'<img{dimensions} class="{cls}" src="{url(d["imagen"])}" alt="{e(d.get("alt") or d.get("descripcion",""))}" loading="{"eager" if eager else "lazy"}" decoding="async"{responsive}>'
+    fetch = ' fetchpriority="high"' if priority else ''
+    return f'<img{dimensions}{fetch} class="{cls}" src="{url(d["imagen"])}" alt="{e(d.get("alt") or d.get("descripcion",""))}" loading="{"eager" if eager else "lazy"}" decoding="async"{responsive}>'
 
 def label(d): return d.get('titulo') or d['nombre']
 def entrypath(d, beast=False): return ('bestiario/' if beast else 'portafolio/') + d['slug'] + '/'
@@ -344,8 +379,92 @@ def work_detail(works):
             page(entrypath(work), f'{title} · {name}', description or context,
                  body, work['imagen'], 'portafolio/')
 
+def bestiary_entry(creature, entries, index):
+    editorial = creature['editorial']
+
+    def facts(rows):
+        return '<dl class="bestiary-facts">' + ''.join(
+            f'<div><dt>{e(term)}</dt><dd>{e(value)}</dd></div>' for term, value in rows
+        ) + '</dl>'
+
+    def panel(section, cls):
+        title, description = editorial[section]
+        return f'<section class="bestiary-section {cls}"><h2>{e(title)}</h2><p>{e(description)}</p></section>'
+
+    def zoom_link(image, title, content, cls=''):
+        return (f'<a class="{cls}" href="{url(image)}" data-plate="{e(title)}">'
+                f'{content}</a>')
+
+    anatomy = ''.join(
+        f'<li><span aria-hidden="true">{number:02}</span><h3>{e(title)}</h3><p>{e(description)}</p></li>'
+        for number, (title, description) in enumerate(editorial['anatomia'], 1)
+    )
+    details = ''.join(
+        f'<figure>{zoom_link(detail["imagen"], detail["titulo"], img({**detail, "alt": detail["titulo"]}))}'
+        f'<figcaption>{e(detail["titulo"])}</figcaption></figure>'
+        for detail in creature['detalles_renderizados']
+    )
+    neighbors = []
+    for position, key in ((index - 1, 'anterior'), (index + 1, 'siguiente')):
+        entry = editorial.get(key, {})
+        if entry.get('slug'):
+            target = next((item for item in entries if item['slug'] == entry['slug']), None)
+        else:
+            target = entries[position] if 0 <= position < len(entries) else None
+        if target:
+            neighbors.append(link(entrypath(target, True), label(target)))
+        elif entry.get('titulo'):
+            neighbors.append(f'<span class="eyebrow">{e(entry["titulo"])}</span>')
+    title = label(creature)
+    main_image = img(creature, True, sizes='(max-width: 740px) 94vw, (max-width: 1376px) 56vw, 765px', priority=True)
+    body = f"""
+<article class="bestiary-entry">
+  <div class="bestiary-hero">
+    <header class="bestiary-heading">
+      <p class="eyebrow">Bestiario / Registro {e(editorial['registro'])}</p>
+      <h1>{e(title)}</h1>
+      <p class="bestiary-opening">{e(editorial['apertura'])}</p>
+    </header>
+    <figure class="bestiary-plate">
+      {main_image}
+      <figcaption>{zoom_link(creature['imagen'], title, 'Ver lámina completa', 'bestiary-view-link')}</figcaption>
+    </figure>
+    <div class="bestiary-summary">
+      <p>{e(creature['descripcion'])}</p>
+      {facts(editorial['datos'])}
+    </div>
+  </div>
+  {panel('concepto', 'bestiary-concept')}
+  <section class="bestiary-section"><h2>Anatomía funcional</h2><ol class="bestiary-anatomy">{anatomy}</ol></section>
+  <div class="bestiary-design">
+    {panel('diseno', '')}
+    {facts(editorial['tecnica'])}
+  </div>
+  <section class="bestiary-section"><h2>Detalles de la lámina</h2><div class="bestiary-details">{details}</div></section>
+  <nav class="bestiary-end" aria-label="Navegación del Bestiario">
+    {link('bestiario/', 'Volver al Bestiario', 'cta', 'left')}
+    {''.join(neighbors)}
+    <button data-share hidden type="button">Compartir registro</button>
+    <input data-share-url hidden readonly aria-label="Enlace del registro">
+    <span data-share-status role="status"></span>
+  </nav>
+  <dialog class="bestiary-viewer" aria-labelledby="plate-title">
+    <div class="bestiary-viewer-tools">
+      <h2 id="plate-title"></h2>
+      <button type="button" data-plate-zoom aria-pressed="false">Ampliar</button>
+      <form method="dialog"><button autofocus>Cerrar</button></form>
+    </div>
+    <div class="bestiary-viewer-body" tabindex="0" aria-label="Lámina ampliable"><img alt=""></div>
+  </dialog>
+</article>"""
+    page(entrypath(creature, True), title, editorial.get('seo_descripcion', creature['descripcion']),
+         body, creature['imagen'], 'bestiario/', seo_title=editorial.get('seo_titulo'))
+
 def detail(items, beast=False):
     for i,d in enumerate(items):
+        if beast and d.get('editorial'):
+            bestiary_entry(d, items, i)
+            continue
         p = entrypath(d,beast)
         section_name, section_path = ('Bestiario','bestiario/') if beast else ('Portafolio','portafolio/')
         if beast:
@@ -397,7 +516,20 @@ def build():
         folder = Path('images/artworks') / collection
         prefix = 'portada-' if item in cols else 'criatura-' if item in beasts else ''
         stem = f"{collection}-{prefix}{item['slug']}"
-        variants = export_art(read_art(PUBLIC / item['imagen']), OUT / folder, stem)
+        art = read_art(PUBLIC / item['imagen'])
+        if item in beasts and item.get('editorial'):
+            item['detalles_renderizados'] = []
+            for number, detail_data in enumerate(item['editorial']['detalles'], 1):
+                x0, y0, x1, y1 = detail_data['recorte']
+                crop = art.crop((round(x0 * art.width), round(y0 * art.height),
+                                 round(x1 * art.width), round(y1 * art.height)))
+                copies = export_art(crop, OUT / folder, f'{stem}-detalle-{number}')
+                name, width, height = copies[-1]
+                item['detalles_renderizados'].append(dict(
+                    titulo=detail_data['titulo'], imagen=(folder / name).as_posix(), ancho=width, alto=height,
+                    variantes=[dict(imagen=(folder / name).as_posix(), ancho=w) for name,w,_ in copies],
+                ))
+        variants = export_art(art, OUT / folder, stem)
         filename, item['ancho'], item['alto'] = variants[-1]
         item['imagen'] = (folder / filename).as_posix()
         item['variantes'] = [dict(imagen=(folder / name).as_posix(),ancho=w) for name,w,_ in variants]
@@ -424,7 +556,7 @@ def build():
     if col:
         illustrations = [d for d in works if d['coleccion']=='bestiario']
         extra = section('Ilustraciones del Bestiario',gallery(illustrations)) if illustrations else ''
-        page('bestiario/',label(col),col['descripcion'],head('Fichas de campo',label(col),col['descripcion']) + img(col,True,'portrait') + gallery(beasts,[('tipo','Tipo'),('tamano','Tamaño'),('entorno','Entorno'),('amenaza','Amenaza'),('estado','Estado')],True,empty(col['vacio']) + '<p>El Bestiario reunirá criaturas originales ilustradas en tinta, desde sus primeros avistamientos hasta sus fichas completas de campo.</p>') + extra,col.get('imagen',''))
+        page('bestiario/',label(col),col['descripcion'],head('Fichas de campo',label(col),col['descripcion']) + img(col,True,'portrait') + gallery(beasts,[('tipo','Tipo'),('tamano','Tamaño'),('entorno','Entorno'),('amenaza','Amenaza'),('estado','Estado')],True,empty(col['vacio']) + ('' if beasts else '<p>El Bestiario reunirá criaturas originales ilustradas en tinta, desde sus primeros avistamientos hasta sus fichas completas de campo.</p>')) + extra,col.get('imagen',''))
     work_detail(works)
     detail(beasts,True)
     profile = textblocks(cfg, [('bio','Biografía'),('declaracion','Declaración artística')])

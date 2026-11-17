@@ -32,3 +32,39 @@ if (share) {
     }
   });
 }
+
+const plateViewer = document.querySelector('.bestiary-viewer');
+if (plateViewer && typeof plateViewer.showModal === 'function') {
+  const title = plateViewer.querySelector('h2');
+  const image = plateViewer.querySelector('img');
+  const zoom = plateViewer.querySelector('[data-plate-zoom]');
+  const viewport = plateViewer.querySelector('.bestiary-viewer-body');
+  let opener;
+
+  document.querySelectorAll('[data-plate]').forEach(link => {
+    link.addEventListener('click', event => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      opener = link;
+      title.textContent = link.dataset.plate;
+      image.alt = (link.querySelector('img') || link.closest('figure')?.querySelector('img'))?.alt || title.textContent;
+      image.src = link.href;
+      plateViewer.showModal();
+    });
+  });
+
+  zoom.addEventListener('click', () => {
+    const enlarged = plateViewer.toggleAttribute('data-zoomed');
+    zoom.setAttribute('aria-pressed', String(enlarged));
+    zoom.textContent = enlarged ? 'Ajustar' : 'Ampliar';
+    viewport.scrollTo(0, 0);
+  });
+
+  plateViewer.addEventListener('close', () => {
+    plateViewer.removeAttribute('data-zoomed');
+    zoom.setAttribute('aria-pressed', 'false');
+    zoom.textContent = 'Ampliar';
+    image.removeAttribute('src');
+    opener?.focus();
+  });
+}
