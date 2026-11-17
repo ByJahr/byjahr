@@ -40,6 +40,21 @@ if (plateViewer && typeof plateViewer.showModal === 'function') {
   const zoom = plateViewer.querySelector('[data-plate-zoom]');
   const viewport = plateViewer.querySelector('.bestiary-viewer-body');
   let opener;
+  const fitPlate = () => {
+    if (!plateViewer.open) return;
+    const frame = viewport.parentElement;
+    const tools = zoom.parentElement;
+    const verticalSpace = element => {
+      const style = getComputedStyle(element);
+      return ['paddingTop', 'paddingBottom', 'borderTopWidth', 'borderBottomWidth']
+        .reduce((total, key) => total + (parseFloat(style[key]) || 0), 0);
+    };
+    const available = parseFloat(getComputedStyle(plateViewer).maxHeight)
+      - verticalSpace(plateViewer) - verticalSpace(frame)
+      - tools.offsetHeight - parseFloat(getComputedStyle(tools).marginBottom);
+    viewport.style.setProperty('--plate-fit-height', `${Math.max(1, Math.floor(available))}px`);
+  };
+  window.addEventListener('resize', fitPlate);
 
   document.querySelectorAll('[data-plate]').forEach(link => {
     link.addEventListener('click', event => {
@@ -50,6 +65,7 @@ if (plateViewer && typeof plateViewer.showModal === 'function') {
       image.alt = (link.querySelector('img') || link.closest('figure')?.querySelector('img'))?.alt || title.textContent;
       image.src = link.href;
       plateViewer.showModal();
+      fitPlate();
     });
   });
 
@@ -58,6 +74,7 @@ if (plateViewer && typeof plateViewer.showModal === 'function') {
     zoom.setAttribute('aria-pressed', String(enlarged));
     zoom.textContent = enlarged ? 'Ajustar' : 'Ampliar';
     viewport.scrollTo(0, 0);
+    if (enlarged) viewport.focus();
   });
 
   plateViewer.addEventListener('close', () => {

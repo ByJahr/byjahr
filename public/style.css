@@ -149,3 +149,38 @@ blockquote{margin:2rem 0;padding-inline-start:1rem;border-inline-start:1px solid
  .bestiary-entry{animation:bestiary-appear .36s ease-out}
  @keyframes bestiary-appear{from{opacity:.5}to{opacity:1}}
 }
+
+.bestiary-plate-frame,.bestiary-viewer-frame{
+ border:1px solid #D7D0C4;
+ background:#F4F1E9;
+ padding:clamp(8px,2vw,16px);
+}
+.bestiary-viewer[open]{display:flex;flex-direction:column}
+.bestiary-viewer-tools{flex-shrink:0}
+.bestiary-viewer-frame{display:flex;flex-direction:column;min-height:0}
+.bestiary-viewer-body{min-height:0;max-height:var(--plate-fit-height,calc(94dvh - 12rem))}
+.bestiary-viewer:not([data-zoomed]) .bestiary-viewer-body{overflow:hidden}
+.bestiary-viewer:not([data-zoomed]) .bestiary-viewer-body img{
+ max-height:var(--plate-fit-height,calc(94dvh - 12rem));
+}
+
+.dnd-jump{display:inline-block;margin-top:.65rem;font-size:.875rem;text-underline-offset:.2em}
+.dnd-stats{
+ background:#F4F1E9;
+ border-top:1px solid var(--red);
+ padding:clamp(.75rem,3vw,2rem);
+ scroll-margin-top:6rem;
+}
+.dnd-stats .eyebrow{color:var(--red)}
+.dnd-stats .dnd-classification{margin:.5rem 0 0;font-style:italic}
+.dnd-stats .dnd-credit{font:inherit;font-size:.85rem;color:var(--mute);margin:.5rem 0 1rem}
+.dnd-facts{margin:0 0 1.25rem}
+.dnd-facts div{display:flex;flex-wrap:wrap;gap:0 .45em;padding:.35rem 0;border-bottom:1px solid var(--line)}
+.dnd-facts dt{font-weight:700}
+.dnd-facts dd{margin:0}
+.dnd-stats table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:clamp(.75rem,2.7vw,1rem)}
+.dnd-stats th,.dnd-stats td{padding:.45rem .18rem;border-bottom:1px solid var(--line);overflow-wrap:anywhere;text-align:center}
+.dnd-stats tr>:first-child{width:30%;text-align:left}
+.dnd-stats h3{margin:1.35rem 0 .45rem;padding-top:.55rem;border-top:1px solid var(--line)}
+.dnd-stats h3+p,.dnd-stats .dnd-running{font:inherit;max-width:70ch}
+.dnd-running{margin-top:1.5rem;padding-inline-start:.75rem;border-inline-start:1px solid var(--red)}

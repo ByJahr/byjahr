@@ -60,6 +60,28 @@ def normalize_entry(group, path, data):
         data['imagen'] = data['imagen'].removeprefix('/byjahr/').removeprefix('/')
     return data
 
+def validate_dnd_stats(stats):
+    if not isinstance(stats, dict):
+        raise ValueError('estadisticas_dnd debe ser un objeto')
+    def text(value):
+        return isinstance(value, str) and bool(value.strip())
+    for key in ('clasificacion', 'credito', 'como_dirigirlo'):
+        if not text(stats.get(key)):
+            raise ValueError(f'estadisticas_dnd: falta {key}')
+    for key in ('datos', 'rasgos', 'acciones', 'acciones_adicionales', 'reacciones'):
+        rows = stats.get(key, [])
+        if not isinstance(rows, list) or any(
+            not isinstance(row, list) or len(row) != 2 or not all(map(text, row)) for row in rows
+        ):
+            raise ValueError(f'estadisticas_dnd: pares de texto inválidos en {key}')
+    rows = stats.get('atributos')
+    if not isinstance(rows, list) or len(rows) != 6 or any(
+        not isinstance(row, list) or len(row) != 4 or type(row[1]) is not int
+        or not all(text(row[i]) for i in (0, 2, 3)) for row in rows
+    ):
+        raise ValueError('estadisticas_dnd: se requieren seis filas de atributos')
+
+
 def validate_bestiary_editorial(data):
     def nonempty(value):
         return isinstance(value, str) and bool(value.strip())
@@ -153,6 +175,8 @@ def validate():
                                         widths.add(width)
                     elif group == 'criaturas' and key == 'editorial':
                         validate_bestiary_editorial(value)
+                    elif group == 'criaturas' and key == 'estadisticas_dnd':
+                        validate_dnd_stats(value)
                     elif not isinstance(value,str):
                         fail(f'{key} debe ser texto')
                 if d.get('imagen'):
@@ -379,6 +403,36 @@ def work_detail(works):
             page(entrypath(work), f'{title} · {name}', description or context,
                  body, work['imagen'], 'portafolio/')
 
+def dnd_stats(creature):
+    stats = creature.get('estadisticas_dnd')
+    if not stats:
+        return ''
+    facts = ''.join(f'<div><dt>{e(name)}</dt><dd>{e(value)}</dd></div>' for name, value in stats.get('datos', []))
+    abilities = ''.join(
+        f'<tr><th scope="row">{e(name)}</th><td>{score}</td><td>{e(modifier)}</td><td>{e(save)}</td></tr>'
+        for name, score, modifier, save in stats['atributos']
+    )
+    groups = []
+    for key, heading in (('rasgos', 'Rasgos'), ('acciones', 'Acciones'),
+                         ('acciones_adicionales', 'Acciones adicionales'), ('reacciones', 'Reacciones')):
+        if stats.get(key):
+            entries = ''.join(f'<p><strong>{e(name)}.</strong> {e(text)}</p>' for name, text in stats[key])
+            groups.append(f'<h3>{heading}</h3>{entries}')
+    return f'''<section class="bestiary-section dnd-stats" id="estadisticas-dnd" aria-labelledby="dnd-title">
+      <p class="eyebrow">Estadísticas de D&amp;D 5e</p>
+      <h2 id="dnd-title">{e(label(creature))}</h2>
+      <p class="dnd-classification">{e(stats['clasificacion'])}</p>
+      <p class="dnd-credit">{e(stats['credito'])}</p>
+      <dl class="dnd-facts">{facts}</dl>
+      <table aria-label="Atributos">
+        <thead><tr><th scope="col">Atributo</th><th scope="col">Puntuación</th><th scope="col">Modificador</th><th scope="col">Salvación</th></tr></thead>
+        <tbody>{abilities}</tbody>
+      </table>
+      {''.join(groups)}
+      <p class="dnd-running"><strong>Cómo dirigirlo.</strong> {e(stats['como_dirigirlo'])}</p>
+    </section>'''
+
+
 def bestiary_entry(creature, entries, index):
     editorial = creature['editorial']
 
@@ -416,6 +470,9 @@ def bestiary_entry(creature, entries, index):
         elif entry.get('titulo'):
             neighbors.append(f'<span class="eyebrow">{e(entry["titulo"])}</span>')
     title = label(creature)
+    stats = dnd_stats(creature)
+    stats_link = ('<a class="dnd-jump" href="#estadisticas-dnd">Ver estadísticas de D&amp;D 5e</a>'
+                  if stats else '')
     main_image = img(creature, True, sizes='(max-width: 740px) 94vw, (max-width: 1376px) 56vw, 765px', priority=True)
     body = f"""
 <article class="bestiary-entry">
@@ -426,12 +483,13 @@ def bestiary_entry(creature, entries, index):
       <p class="bestiary-opening">{e(editorial['apertura'])}</p>
     </header>
     <figure class="bestiary-plate">
-      {main_image}
+      <div class="bestiary-plate-frame">{main_image}</div>
       <figcaption>{zoom_link(creature['imagen'], title, 'Ver lámina completa', 'bestiary-view-link')}</figcaption>
     </figure>
     <div class="bestiary-summary">
       <p>{e(creature['descripcion'])}</p>
       {facts(editorial['datos'])}
+      {stats_link}
     </div>
   </div>
   {panel('concepto', 'bestiary-concept')}
@@ -441,6 +499,7 @@ def bestiary_entry(creature, entries, index):
     {facts(editorial['tecnica'])}
   </div>
   <section class="bestiary-section"><h2>Detalles de la lámina</h2><div class="bestiary-details">{details}</div></section>
+  {stats}
   <nav class="bestiary-end" aria-label="Navegación del Bestiario">
     {link('bestiario/', 'Volver al Bestiario', 'cta', 'left')}
     {''.join(neighbors)}
@@ -454,7 +513,9 @@ def bestiary_entry(creature, entries, index):
       <button type="button" data-plate-zoom aria-pressed="false">Ampliar</button>
       <form method="dialog"><button autofocus>Cerrar</button></form>
     </div>
-    <div class="bestiary-viewer-body" tabindex="0" aria-label="Lámina ampliable"><img alt=""></div>
+    <div class="bestiary-viewer-frame">
+      <div class="bestiary-viewer-body" tabindex="0" aria-label="Lámina ampliable"><img alt=""></div>
+    </div>
   </dialog>
 </article>"""
     page(entrypath(creature, True), title, editorial.get('seo_descripcion', creature['descripcion']),
@@ -493,8 +554,11 @@ def detail(items, beast=False):
         if d.get('aviso'):
             desc += f'<p class="empty"><strong>Aviso de contenido:</strong> {e(d["aviso"])}</p>'
         enlarged = f'<a class="art-link" href="{url(d["imagen"])}" target="_blank" rel="noopener noreferrer">{img(d,True)}<span>Ver imagen a tamaño completo {arrow()}</span></a>'
+        stats = dnd_stats(d) if beast else ''
+        stats_link = ('<a class="dnd-jump" href="#estadisticas-dnd">Ver estadísticas de D&amp;D 5e</a>'
+                      if stats else '')
         page(p,label(d),d.get('descripcion') or label(d),
-             head(section_name,label(d),intro) + f'<div class="detail">{enlarged}<div class="prose">{desc}<dl>{defs}</dl>{textblocks(d,fields)}{f"<ul>{related}</ul>" if related else ""}{share}</div></div><nav class="pager" aria-label="Entre fichas">{link(section_path,"Volver a " + section_name)}{pager}</nav>',
+             head(section_name,label(d),intro) + f'<div class="detail">{enlarged}<div class="prose">{desc}<dl>{defs}</dl>{stats_link}{textblocks(d,fields)}{f"<ul>{related}</ul>" if related else ""}{share}</div></div>{stats}<nav class="pager" aria-label="Entre fichas">{link(section_path,"Volver a " + section_name)}{pager}</nav>',
              d['imagen'],section_path)
 
 def build():

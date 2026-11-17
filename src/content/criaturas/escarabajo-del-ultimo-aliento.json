@@ -112,5 +112,110 @@
     "siguiente": {
       "titulo": "REGISTRO 002 — PRÓXIMAMENTE"
     }
+  },
+  "estadisticas_dnd": {
+    "clasificacion": "Monstruosidad Mediana, sin alineamiento",
+    "credito": "Criatura original de @byjahr · Reglas de D&D 5e (2024)",
+    "datos": [
+      [
+        "Clase de Armadura",
+        "13 (armadura natural)"
+      ],
+      [
+        "Iniciativa",
+        "+1 (11)"
+      ],
+      [
+        "Puntos de golpe",
+        "27 (5d8 + 5)"
+      ],
+      [
+        "Velocidad",
+        "30 pies, trepar 20 pies"
+      ],
+      [
+        "Habilidades",
+        "Percepción +3"
+      ],
+      [
+        "Sentidos",
+        "Visión en la oscuridad 60 pies, Percepción pasiva 13"
+      ],
+      [
+        "Idiomas",
+        "Ninguno"
+      ],
+      [
+        "Desafío",
+        "1/2 (100 PX)"
+      ],
+      [
+        "Bonificador de competencia",
+        "+2"
+      ]
+    ],
+    "atributos": [
+      [
+        "Fuerza",
+        14,
+        "+2",
+        "+2"
+      ],
+      [
+        "Destreza",
+        12,
+        "+1",
+        "+1"
+      ],
+      [
+        "Constitución",
+        12,
+        "+1",
+        "+1"
+      ],
+      [
+        "Inteligencia",
+        2,
+        "−4",
+        "−4"
+      ],
+      [
+        "Sabiduría",
+        12,
+        "+1",
+        "+1"
+      ],
+      [
+        "Carisma",
+        4,
+        "−3",
+        "−3"
+      ]
+    ],
+    "rasgos": [
+      [
+        "Olfato del umbral",
+        "El escarabajo percibe la dirección de las criaturas vivas a 0 puntos de golpe situadas a 30 pies o menos de él, siempre que no estén detrás de cobertura total. Percibir la dirección de una criatura no le permite verla."
+      ]
+    ],
+    "acciones": [
+      [
+        "Mandíbulas",
+        "Ataque cuerpo a cuerpo: +4 al ataque, alcance de 5 pies, un objetivo. Impacto: 7 (1d10 + 2) de daño perforante."
+      ]
+    ],
+    "acciones_adicionales": [
+      [
+        "Consumir aliento (1/día)",
+        "Si tiene un aliento almacenado, el escarabajo lo consume y recupera 5 (1d6 + 2) puntos de golpe. La niebla roja se disipa de su abdomen."
+      ]
+    ],
+    "reacciones": [
+      [
+        "Capturar el último aliento",
+        "Cuando otra criatura viva Pequeña o de mayor tamaño muere a 5 pies o menos del escarabajo y este puede verla, el escarabajo puede capturar su última exhalación. Solo puede almacenar un aliento a la vez. El aliento dura hasta que lo consume o transcurre 1 hora. Mientras lo almacena, se ve niebla roja en su abdomen. Capturarlo no altera el cadáver ni afecta la posibilidad de devolver a la criatura a la vida."
+      ]
+    ],
+    "como_dirigirlo": "El escarabajo ronda criaturas agonizantes y espera. Usa las mandíbulas si lo atacan o le impiden acercarse. Puede aparecer con el abdomen vacío o con un aliento recién capturado. La reacción solo se activa tras una muerte. Una criatura que cae a 0 PG y sigue viva conserva sus tiradas de salvación contra muerte con normalidad."
   }
 }
