@@ -1,15 +1,15 @@
 {
   "slug": "escarabajo-del-ultimo-aliento",
   "nombre": "El Escarabajo del Último Aliento",
-  "descripcion": "Del tamaño de un perro grande, este escarabajo aparece cerca de seres agonizantes para capturar su última exhalación antes de que se disipe. Es un carroñero de aquello que normalmente no puede tocarse.",
+  "descripcion": "Del tamaño de un perro grande, este escarabajo se oculta cerca de los campos de batalla. Cuando una criatura cercana recibe curación, su sifón intercepta parte de ella y la guarda como una niebla roja en el crisol de su abdomen.",
   "imagen": "images/artworks/bestiario/escarabajo-del-ultimo-aliento.webp",
   "alt": "Ilustración en tinta negra de un escarabajo fantástico del tamaño de un perro grande avanzando por una cripta, con seis patas, élitros abiertos, abdomen transparente y una pequeña niebla roja.",
   "orden": 1,
   "editorial": {
     "registro": "001",
     "seo_titulo": "El Escarabajo del Último Aliento — Bestiario de @byjahr",
-    "seo_descripcion": "Primera entrada del Bestiario de @byjahr: un escarabajo carroñero del tamaño de un perro grande que captura el último aliento de los seres agonizantes.",
-    "apertura": "No provoca la muerte. La reconoce.",
+    "seo_descripcion": "Primera entrada del Bestiario de @byjahr: un escarabajo carroñero de campo de batalla que absorbe curaciones y las almacena en un crisol.",
+    "apertura": "Se esconde entre los restos de la batalla y espera a que alguien sane.",
     "datos": [
       [
         "ESCALA",
@@ -21,12 +21,12 @@
       ],
       [
         "RASGO PRINCIPAL",
-        "Captura del último aliento"
+        "Absorción de curaciones"
       ]
     ],
     "concepto": [
       "Un carroñero de lo invisible",
-      "El Escarabajo del Último Aliento no necesita abatir a sus víctimas. Aparece cuando la muerte ya ha comenzado y recoge la última respiración antes de que desaparezca. Su diseño combina la resistencia de un insecto acorazado con un órgano de alimentación estrecho y especializado."
+      "El Escarabajo del Último Aliento merodea cerca de los combates y se esconde entre los escombros. Cuando alguien se cura o recibe curación, la criatura desvía parte de esa energía con su sifón. El crisol transparente de su abdomen conserva la curación incluso después de que el escarabajo muera."
     ],
     "anatomia": [
       [
@@ -35,7 +35,7 @@
       ],
       [
         "Sifón de alimentación",
-        "Debajo de las mandíbulas nace un tubo orgánico, estrecho, flexible y segmentado. Está diseñado para absorber la última exhalación sin parecer una trompa, una lengua, un tentáculo ni un aguijón."
+        "Debajo de las mandíbulas nace un tubo orgánico, estrecho, flexible y segmentado. El sifón intercepta parte de la curación que está a punto de recibir una criatura cercana y la conduce hacia el crisol."
       ],
       [
         "Carapacho",
@@ -50,13 +50,13 @@
         "Dos élitros parcialmente abiertos protegen el abdomen. Debajo permanecen plegadas las alas membranosas."
       ],
       [
-        "Abdomen transparente",
-        "El abdomen deja entrever aquello que la criatura ha recogido. La niebla roja funciona como el único acento cromático de toda la lámina."
+        "Crisol abdominal",
+        "El abdomen transparente alberga un crisol en el que la curación acumulada se ve como niebla roja. Si el escarabajo muere y el crisol queda intacto, la reserva permanece dentro."
       ]
     ],
     "diseno": [
       "Diseñado desde la función",
-      "Cada parte del cuerpo responde a una necesidad concreta: protegerse, desplazarse, aferrarse y recolectar. La masa ancha y pesada del caparazón contrasta con la delicadeza del sifón, mientras que el abdomen transparente vuelve visible aquello que la criatura roba en el instante de la muerte."
+      "El caparazón ancho protege al escarabajo mientras se arrastra entre los escombros. El sifón, mucho más delicado, conduce la curación hacia el crisol. La niebla roja permite ver cuánta energía ha acumulado la criatura."
     ],
     "tecnica": [
       [
@@ -135,7 +135,7 @@
       ],
       [
         "Habilidades",
-        "Percepción +3"
+        "Percepción +3, Sigilo +3"
       ],
       [
         "Sentidos",
@@ -194,8 +194,8 @@
     ],
     "rasgos": [
       [
-        "Olfato del umbral",
-        "El escarabajo percibe la dirección de las criaturas vivas a 0 puntos de golpe situadas a 30 pies o menos de él, siempre que no estén detrás de cobertura total. Percibir la dirección de una criatura no le permite verla."
+        "Crisol abdominal",
+        "El crisol empieza vacío y puede almacenar hasta 10 puntos de curación. Si el escarabajo muere, el crisol permanece intacto salvo que el DJ determine que el golpe también lo destruyó. Un crisol intacto conserva su carga indefinidamente. Una criatura a su alcance puede usar una acción para romperlo deliberadamente y recuperar tantos puntos de golpe como puntos de curación queden almacenados. El crisol se destruye y cualquier curación que exceda sus puntos de golpe faltantes se pierde."
       ]
     ],
     "acciones": [
@@ -206,16 +206,16 @@
     ],
     "acciones_adicionales": [
       [
-        "Consumir aliento (1/día)",
-        "Si tiene un aliento almacenado, el escarabajo lo consume y recupera 5 (1d6 + 2) puntos de golpe. La niebla roja se disipa de su abdomen."
+        "Consumir la reserva",
+        "Si le faltan puntos de golpe, el escarabajo puede gastar tantos puntos almacenados como quiera y recuperar el mismo número de puntos de golpe, hasta su máximo."
       ]
     ],
     "reacciones": [
       [
-        "Capturar el último aliento",
-        "Cuando otra criatura viva Pequeña o de mayor tamaño muere a 5 pies o menos del escarabajo y este puede verla, el escarabajo puede capturar su última exhalación. Solo puede almacenar un aliento a la vez. El aliento dura hasta que lo consume o transcurre 1 hora. Mientras lo almacena, se ve niebla roja en su abdomen. Capturarlo no altera el cadáver ni afecta la posibilidad de devolver a la criatura a la vida."
+        "Sifón de curación",
+        "Cuando otra criatura que el escarabajo pueda ver a 10 pies o menos vaya a recuperar puntos de golpe, el escarabajo puede usar su reacción para absorber la mitad de los puntos que recuperaría, redondeada hacia abajo, hasta el espacio disponible en el crisol. La criatura recupera los puntos restantes y el escarabajo suma los puntos absorbidos a su reserva. Calcula la mitad sobre la curación limitada por los puntos de golpe faltantes, sin contar puntos de golpe temporales."
       ]
     ],
-    "como_dirigirlo": "El escarabajo ronda criaturas agonizantes y espera. Usa las mandíbulas si lo atacan o le impiden acercarse. Puede aparecer con el abdomen vacío o con un aliento recién capturado. La reacción solo se activa tras una muerte. Una criatura que cae a 0 PG y sigue viva conserva sus tiradas de salvación contra muerte con normalidad."
+    "como_dirigirlo": "Al empezar una batalla, busca cobertura y se esconde cerca de los combatientes. Espera a que alguien se cure o sea curado para usar el sifón. Si lo descubren, se defiende con las mandíbulas y gasta la reserva cuando está herido. Si el grupo recupera el crisol intacto después de matarlo, la niebla roja indica que todavía contiene curación."
   }
 }
